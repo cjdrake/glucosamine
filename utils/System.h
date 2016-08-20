@@ -44,24 +44,31 @@ extern double memUsedPeak();        // Peak-memory in mega bytes (returns 0 for 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <time.h>
 
-static inline double Glucose::cpuTime(void) { return (double)clock() / CLOCKS_PER_SEC; }
+static inline double Glucose::cpuTime(void)
+{
+    return (double)clock() / CLOCKS_PER_SEC;
+}
 
 #else
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
 
-static inline double Glucose::cpuTime(void) {
+static inline double Glucose::cpuTime(void)
+{
     struct rusage ru;
     getrusage(RUSAGE_SELF, &ru);
-    return (double)ru.ru_utime.tv_sec + (double)ru.ru_utime.tv_usec / 1000000; }
+    return (double)ru.ru_utime.tv_sec + (double)ru.ru_utime.tv_usec / 1000000;
+}
 
 #endif
 
 // Laurent: I know that this will not compile directly under Windows... sorry for that
-static inline double Glucose::realTime() {
+static inline double Glucose::realTime()
+{
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return (double)tv.tv_sec + (double) tv.tv_usec / 1000000; }
+    return (double)tv.tv_sec + (double) tv.tv_usec / 1000000;
+}
 
 #endif

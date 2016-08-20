@@ -69,14 +69,17 @@ static inline void copy(const vec<T>& from, vec<T>& to, bool append = false)
 {
     if (!append)
         to.clear();
-    for (int i = 0; i < from.size(); i++){
+    for (int i = 0; i < from.size(); i++) {
         to.push();
         copy(from[i], to.last());
     }
 }
 
 template<class T>
-static inline void append(const vec<T>& from, vec<T>& to){ copy(from, to, true); }
+static inline void append(const vec<T>& from, vec<T>& to)
+{
+    copy(from, to, true);
+}
 
 //=================================================================================================
 }

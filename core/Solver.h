@@ -9,19 +9,19 @@
                                 Labri - Univ. Bordeaux, France
 
 Glucose sources are based on MiniSat (see below MiniSat copyrights). Permissions and copyrights of
-Glucose (sources until 2013, Glucose 3.0, single core) are exactly the same as Minisat on which it 
+Glucose (sources until 2013, Glucose 3.0, single core) are exactly the same as Minisat on which it
 is based on. (see below).
 
 Glucose-Syrup sources are based on another copyright. Permissions and copyrights for the parallel
 version of Glucose-Syrup (the "Software") are granted, free of charge, to deal with the Software
 without restriction, including the rights to use, copy, modify, merge, publish, distribute,
-sublicence, and/or sell copies of the Software, and to permit persons to whom the Software is 
+sublicence, and/or sell copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
 - The above and below copyrights notices and this permission notice shall be included in all
 copies or substantial portions of the Software;
 - The parallel version of Glucose (all files modified since Glucose 3.0 releases, 2013) cannot
-be used in any competitive event (sat competitions/evaluations) without the express permission of 
+be used in any competitive event (sat competitions/evaluations) without the express permission of
 the authors (Gilles Audemard / Laurent Simon). This is also the case for any competitive event
 using Glucose Parallel as an embedded SAT engine (single core or not).
 
@@ -74,26 +74,26 @@ public:
     //
     Solver();
     Solver(const  Solver &s);
-    
+
     virtual ~Solver();
-    
+
     /**
      * Clone function
      */
     virtual Clone* clone() const {
         return  new Solver(*this);
-    }   
+    }
 
     // Problem specification:
     //
     virtual Var     newVar    (bool polarity = true, bool dvar = true); // Add a new variable with parameters specifying variable mode.
-    bool    addClause (const vec<Lit>& ps);                     // Add a clause to the solver. 
+    bool    addClause (const vec<Lit>& ps);                     // Add a clause to the solver.
     bool    addEmptyClause();                                   // Add the empty clause, making the solver contradictory.
-    bool    addClause (Lit p);                                  // Add a unit clause to the solver. 
-    bool    addClause (Lit p, Lit q);                           // Add a binary clause to the solver. 
-    bool    addClause (Lit p, Lit q, Lit r);                    // Add a ternary clause to the solver. 
+    bool    addClause (Lit p);                                  // Add a unit clause to the solver.
+    bool    addClause (Lit p, Lit q);                           // Add a binary clause to the solver.
+    bool    addClause (Lit p, Lit q, Lit r);                    // Add a ternary clause to the solver.
     virtual bool    addClause_(      vec<Lit>& ps);                     // Add a clause to the solver without making superflous internal copy. Will
-                                                                // change the passed vector 'ps'.
+    // change the passed vector 'ps'.
 
     // Solving:
     //
@@ -106,7 +106,7 @@ public:
     bool    solve        (Lit p, Lit q, Lit r);     // Search for a model that respects three assumptions.
     bool    okay         () const;                  // FALSE means solver is in a conflicting state
 
-       // Convenience versions of 'toDimacs()':
+    // Convenience versions of 'toDimacs()':
     void    toDimacs     (FILE* f, const vec<Lit>& assumps);            // Write CNF to file in DIMACS-format.
     void    toDimacs     (const char *file, const vec<Lit>& assumps);
     void    toDimacs     (FILE* f, Clause& c, vec<Var>& map, Var& max);
@@ -114,14 +114,14 @@ public:
     void    toDimacs     (const char* file, Lit p);
     void    toDimacs     (const char* file, Lit p, Lit q);
     void    toDimacs     (const char* file, Lit p, Lit q, Lit r);
- 
+
     // Display clauses and literals
     void printLit(Lit l);
     void printClause(CRef c);
     void printInitialClause(CRef c);
-    
+
     // Variable mode:
-    // 
+    //
     void    setPolarity    (Var v, bool b); // Declare which polarity the decision heuristic should use for a variable. Requires mode 'polarity_user'.
     void    setDecisionVar (Var v, bool b); // Declare if a variable should be eligible for selection in the decision heuristic.
 
@@ -137,7 +137,9 @@ public:
     int     nVars      ()      const;       // The current number of variables.
     int     nFreeVars  ()      const;
 
-    inline char valuePhase(Var v) {return polarity[v];}
+    inline char valuePhase(Var v) {
+        return polarity[v];
+    }
 
     // Incremental mode
     void setIncrementalMode();
@@ -162,14 +164,14 @@ public:
     //
     vec<lbool> model;             // If problem is satisfiable, this vector contains the model (if any).
     vec<Lit>   conflict;          // If problem is unsatisfiable (possibly under assumptions),
-                                  // this vector represent the final conflict clause expressed in the assumptions.
+    // this vector represent the final conflict clause expressed in the assumptions.
 
     // Mode of operation:
     //
     int       verbosity;
     int       verbEveryConflicts;
     int       showModel;
-    
+
     // Constants For restarts
     double    K;
     double    R;
@@ -196,7 +198,7 @@ public:
     int       phase_saving;       // Controls the level of phase saving (0=none, 1=limited, 2=full).
     bool      rnd_pol;            // Use random polarities for branching heuristics.
     bool      rnd_init_act;       // Initialize variable activities with a small random value.
-    
+
     // Constant for Memory managment
     double    garbage_frac;       // The fraction of wasted memory allowed before a garbage collection is triggered.
 
@@ -204,15 +206,15 @@ public:
     FILE*               certifiedOutput;
     bool                certifiedUNSAT;
 
-    // Panic mode. 
+    // Panic mode.
     // Save memory
     uint32_t panicModeLastRemoved, panicModeLastRemovedShared;
-    
+
     bool useUnaryWatched;            // Enable unary watched literals
     bool promoteOneWatchedClause;    // One watched clauses are promotted to two watched clauses if found empty
-    
+
     // Functions useful for multithread solving
-    // Useless in the sequential case 
+    // Useless in the sequential case
     // Overide in ParallelSolver
     virtual void parallelImportClauseDuringConflictAnalysis(Clause &c,CRef confl);
     virtual bool parallelImportClauses(); // true if the empty clause was received
@@ -221,8 +223,8 @@ public:
     virtual void parallelExportClauseDuringSearch(Clause &c);
     virtual bool parallelJobIsFinished();
     virtual bool panicModeIsEnabled();
-    
-    
+
+
 
     // Statistics: (read-only member variable)
     uint64_t    nbPromoted;          // Number of clauses from unary to binary watch scheme
@@ -237,33 +239,46 @@ protected:
     long curRestart;
     // Helper structures:
     //
-    struct VarData { CRef reason; int level; };
-    static inline VarData mkVarData(CRef cr, int l){ VarData d = {cr, l}; return d; }
+    struct VarData {
+        CRef reason;
+        int level;
+    };
+    static inline VarData mkVarData(CRef cr, int l) {
+        VarData d = {cr, l};
+        return d;
+    }
 
     struct Watcher {
         CRef cref;
         Lit  blocker;
         Watcher(CRef cr, Lit p) : cref(cr), blocker(p) {}
-        bool operator==(const Watcher& w) const { return cref == w.cref; }
-        bool operator!=(const Watcher& w) const { return cref != w.cref; }
-/*        Watcher &operator=(Watcher w) {
-            this->cref = w.cref;
-            this->blocker = w.blocker;
-            return *this;
+        bool operator==(const Watcher& w) const {
+            return cref == w.cref;
         }
-*/
+        bool operator!=(const Watcher& w) const {
+            return cref != w.cref;
+        }
+        /*        Watcher &operator=(Watcher w) {
+                    this->cref = w.cref;
+                    this->blocker = w.blocker;
+                    return *this;
+                }
+        */
     };
 
-    struct WatcherDeleted
-    {
+    struct WatcherDeleted {
         const ClauseAllocator& ca;
         WatcherDeleted(const ClauseAllocator& _ca) : ca(_ca) {}
-        bool operator()(const Watcher& w) const { return ca[w.cref].mark() == 1; }
+        bool operator()(const Watcher& w) const {
+            return ca[w.cref].mark() == 1;
+        }
     };
 
     struct VarOrderLt {
         const vec<double>&  activity;
-        bool operator () (Var x, Var y) const { return activity[x] > activity[y]; }
+        bool operator () (Var x, Var y) const {
+            return activity[x] > activity[y];
+        }
         VarOrderLt(const vec<double>&  act) : activity(act) { }
     };
 
@@ -276,11 +291,11 @@ protected:
     vec<double>         activity;         // A heuristic measurement of the activity of a variable.
     double              var_inc;          // Amount to bump next variable with.
     OccLists<Lit, vec<Watcher>, WatcherDeleted>
-                        watches;          // 'watches[lit]' is a list of constraints watching 'lit' (will go there if literal becomes true).
+    watches;          // 'watches[lit]' is a list of constraints watching 'lit' (will go there if literal becomes true).
     OccLists<Lit, vec<Watcher>, WatcherDeleted>
-                        watchesBin;          // 'watches[lit]' is a list of constraints watching 'lit' (will go there if literal becomes true).
+    watchesBin;          // 'watches[lit]' is a list of constraints watching 'lit' (will go there if literal becomes true).
     OccLists<Lit, vec<Watcher>, WatcherDeleted>
-                        unaryWatches;       //  Unary watch scheme (clauses are seen when they become empty
+    unaryWatches;       //  Unary watch scheme (clauses are seen when they become empty
     vec<CRef>           clauses;          // List of problem clauses.
     vec<CRef>           learnts;          // List of learnt clauses.
     vec<CRef>           unaryWatchedClauses;  // List of imported clauses (after the purgatory) // TODO put inside ParallelSolver
@@ -302,15 +317,15 @@ protected:
     bool reduceOnSize;
     int  reduceOnSizeSize;                // See XMinisat paper
     vec<unsigned int>   permDiff;           // permDiff[var] contains the current conflict number... Used to count the number of  LBD
-    
+
 
     // UPDATEVARACTIVITY trick (see competition'09 companion paper)
-    vec<Lit> lastDecisionLevel; 
+    vec<Lit> lastDecisionLevel;
 
     ClauseAllocator     ca;
 
     int nbclausesbeforereduce;            // To know when it is time to reduce clause database
-    
+
     // Used for restart strategies
     bqueue<unsigned int> trailQueue,lbdQueue; // Bounded queues for restarts.
     float sumLBD; // used to compute the global average of LBD. Restarts...
@@ -397,7 +412,9 @@ protected:
     int      level            (Var x) const;
     double   progressEstimate ()      const; // DELETE THIS ?? IT'S NOT VERY USEFUL ...
     bool     withinBudget     ()      const;
-    inline bool isSelector(Var v) {return (incremental && v>nbVarsInitialFormula);}
+    inline bool isSelector(Var v) {
+        return (incremental && v>nbVarsInitialFormula);
+    }
 
     // Static helpers:
     //
@@ -407,111 +424,287 @@ protected:
         seed *= 1389796;
         int q = (int)(seed / 2147483647);
         seed -= (double)q * 2147483647;
-        return seed / 2147483647; }
+        return seed / 2147483647;
+    }
 
     // Returns a random integer 0 <= x < size. Seed must never be 0.
     static inline int irand(double& seed, int size) {
-        return (int)(drand(seed) * size); }
+        return (int)(drand(seed) * size);
+    }
 };
 
 
 //=================================================================================================
 // Implementation of inline methods:
 
-inline CRef Solver::reason(Var x) const { return vardata[x].reason; }
-inline int  Solver::level (Var x) const { return vardata[x].level; }
+inline CRef Solver::reason(Var x) const
+{
+    return vardata[x].reason;
+}
+inline int  Solver::level (Var x) const
+{
+    return vardata[x].level;
+}
 
-inline void Solver::insertVarOrder(Var x) {
-    if (!order_heap.inHeap(x) && decision[x]) order_heap.insert(x); }
+inline void Solver::insertVarOrder(Var x)
+{
+    if (!order_heap.inHeap(x) && decision[x]) order_heap.insert(x);
+}
 
-inline void Solver::varDecayActivity() { var_inc *= (1 / var_decay); }
-inline void Solver::varBumpActivity(Var v) { varBumpActivity(v, var_inc); }
-inline void Solver::varBumpActivity(Var v, double inc) {
+inline void Solver::varDecayActivity()
+{
+    var_inc *= (1 / var_decay);
+}
+inline void Solver::varBumpActivity(Var v)
+{
+    varBumpActivity(v, var_inc);
+}
+inline void Solver::varBumpActivity(Var v, double inc)
+{
     if ( (activity[v] += inc) > 1e100 ) {
         // Rescale:
         for (int i = 0; i < nVars(); i++)
             activity[i] *= 1e-100;
-        var_inc *= 1e-100; }
+        var_inc *= 1e-100;
+    }
 
     // Update order_heap with respect to new activity:
     if (order_heap.inHeap(v))
-        order_heap.decrease(v); }
+        order_heap.decrease(v);
+}
 
-inline void Solver::claDecayActivity() { cla_inc *= (1 / clause_decay); }
-inline void Solver::claBumpActivity (Clause& c) {
-        if ( (c.activity() += cla_inc) > 1e20 ) {
-            // Rescale:
-            for (int i = 0; i < learnts.size(); i++)
-                ca[learnts[i]].activity() *= 1e-20;
-            cla_inc *= 1e-20; } }
+inline void Solver::claDecayActivity()
+{
+    cla_inc *= (1 / clause_decay);
+}
+inline void Solver::claBumpActivity (Clause& c)
+{
+    if ( (c.activity() += cla_inc) > 1e20 ) {
+        // Rescale:
+        for (int i = 0; i < learnts.size(); i++)
+            ca[learnts[i]].activity() *= 1e-20;
+        cla_inc *= 1e-20;
+    }
+}
 
-inline void Solver::checkGarbage(void){ return checkGarbage(garbage_frac); }
-inline void Solver::checkGarbage(double gf){
+inline void Solver::checkGarbage(void)
+{
+    return checkGarbage(garbage_frac);
+}
+inline void Solver::checkGarbage(double gf)
+{
     if (ca.wasted() > ca.size() * gf)
-        garbageCollect(); }
+        garbageCollect();
+}
 
 // NOTE: enqueue does not set the ok flag! (only public methods do)
-inline bool     Solver::enqueue         (Lit p, CRef from)      { return value(p) != l_Undef ? value(p) != l_False : (uncheckedEnqueue(p, from), true); }
-inline bool     Solver::addClause       (const vec<Lit>& ps)    { ps.copyTo(add_tmp); return addClause_(add_tmp); }
-inline bool     Solver::addEmptyClause  ()                      { add_tmp.clear(); return addClause_(add_tmp); }
-inline bool     Solver::addClause       (Lit p)                 { add_tmp.clear(); add_tmp.push(p); return addClause_(add_tmp); }
-inline bool     Solver::addClause       (Lit p, Lit q)          { add_tmp.clear(); add_tmp.push(p); add_tmp.push(q); return addClause_(add_tmp); }
-inline bool     Solver::addClause       (Lit p, Lit q, Lit r)   { add_tmp.clear(); add_tmp.push(p); add_tmp.push(q); add_tmp.push(r); return addClause_(add_tmp); }
- inline bool     Solver::locked          (const Clause& c) const { 
-   if(c.size()>2) 
-     return value(c[0]) == l_True && reason(var(c[0])) != CRef_Undef && ca.lea(reason(var(c[0]))) == &c; 
-   return 
-     (value(c[0]) == l_True && reason(var(c[0])) != CRef_Undef && ca.lea(reason(var(c[0]))) == &c)
-     || 
-     (value(c[1]) == l_True && reason(var(c[1])) != CRef_Undef && ca.lea(reason(var(c[1]))) == &c);
- }
-inline void     Solver::newDecisionLevel()                      { trail_lim.push(trail.size()); }
+inline bool     Solver::enqueue         (Lit p, CRef from)
+{
+    return value(p) != l_Undef ? value(p) != l_False : (uncheckedEnqueue(p, from), true);
+}
+inline bool     Solver::addClause       (const vec<Lit>& ps)
+{
+    ps.copyTo(add_tmp);
+    return addClause_(add_tmp);
+}
+inline bool     Solver::addEmptyClause  ()
+{
+    add_tmp.clear();
+    return addClause_(add_tmp);
+}
+inline bool     Solver::addClause       (Lit p)
+{
+    add_tmp.clear();
+    add_tmp.push(p);
+    return addClause_(add_tmp);
+}
+inline bool     Solver::addClause       (Lit p, Lit q)
+{
+    add_tmp.clear();
+    add_tmp.push(p);
+    add_tmp.push(q);
+    return addClause_(add_tmp);
+}
+inline bool     Solver::addClause       (Lit p, Lit q, Lit r)
+{
+    add_tmp.clear();
+    add_tmp.push(p);
+    add_tmp.push(q);
+    add_tmp.push(r);
+    return addClause_(add_tmp);
+}
+inline bool     Solver::locked          (const Clause& c) const
+{
+    if(c.size()>2)
+        return value(c[0]) == l_True && reason(var(c[0])) != CRef_Undef && ca.lea(reason(var(c[0]))) == &c;
+    return
+        (value(c[0]) == l_True && reason(var(c[0])) != CRef_Undef && ca.lea(reason(var(c[0]))) == &c)
+        ||
+        (value(c[1]) == l_True && reason(var(c[1])) != CRef_Undef && ca.lea(reason(var(c[1]))) == &c);
+}
+inline void     Solver::newDecisionLevel()
+{
+    trail_lim.push(trail.size());
+}
 
-inline int      Solver::decisionLevel ()      const   { return trail_lim.size(); }
-inline uint32_t Solver::abstractLevel (Var x) const   { return 1 << (level(x) & 31); }
-inline lbool    Solver::value         (Var x) const   { return assigns[x]; }
-inline lbool    Solver::value         (Lit p) const   { return assigns[var(p)] ^ sign(p); }
-inline lbool    Solver::modelValue    (Var x) const   { return model[x]; }
-inline lbool    Solver::modelValue    (Lit p) const   { return model[var(p)] ^ sign(p); }
-inline int      Solver::nAssigns      ()      const   { return trail.size(); }
-inline int      Solver::nClauses      ()      const   { return clauses.size(); }
-inline int      Solver::nLearnts      ()      const   { return learnts.size(); }
-inline int      Solver::nVars         ()      const   { return vardata.size(); }
-inline int      Solver::nFreeVars     ()      const   { return (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]); }
-inline void     Solver::setPolarity   (Var v, bool b) { polarity[v] = b; }
-inline void     Solver::setDecisionVar(Var v, bool b) 
-{ 
+inline int      Solver::decisionLevel ()      const
+{
+    return trail_lim.size();
+}
+inline uint32_t Solver::abstractLevel (Var x) const
+{
+    return 1 << (level(x) & 31);
+}
+inline lbool    Solver::value         (Var x) const
+{
+    return assigns[x];
+}
+inline lbool    Solver::value         (Lit p) const
+{
+    return assigns[var(p)] ^ sign(p);
+}
+inline lbool    Solver::modelValue    (Var x) const
+{
+    return model[x];
+}
+inline lbool    Solver::modelValue    (Lit p) const
+{
+    return model[var(p)] ^ sign(p);
+}
+inline int      Solver::nAssigns      ()      const
+{
+    return trail.size();
+}
+inline int      Solver::nClauses      ()      const
+{
+    return clauses.size();
+}
+inline int      Solver::nLearnts      ()      const
+{
+    return learnts.size();
+}
+inline int      Solver::nVars         ()      const
+{
+    return vardata.size();
+}
+inline int      Solver::nFreeVars     ()      const
+{
+    return (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]);
+}
+inline void     Solver::setPolarity   (Var v, bool b)
+{
+    polarity[v] = b;
+}
+inline void     Solver::setDecisionVar(Var v, bool b)
+{
     if      ( b && !decision[v]) dec_vars++;
     else if (!b &&  decision[v]) dec_vars--;
 
     decision[v] = b;
     insertVarOrder(v);
 }
-inline void     Solver::setConfBudget(int64_t x){ conflict_budget    = conflicts    + x; }
-inline void     Solver::setPropBudget(int64_t x){ propagation_budget = propagations + x; }
-inline void     Solver::interrupt(){ asynch_interrupt = true; }
-inline void     Solver::clearInterrupt(){ asynch_interrupt = false; }
-inline void     Solver::budgetOff(){ conflict_budget = propagation_budget = -1; }
-inline bool     Solver::withinBudget() const {
+inline void     Solver::setConfBudget(int64_t x)
+{
+    conflict_budget    = conflicts    + x;
+}
+inline void     Solver::setPropBudget(int64_t x)
+{
+    propagation_budget = propagations + x;
+}
+inline void     Solver::interrupt()
+{
+    asynch_interrupt = true;
+}
+inline void     Solver::clearInterrupt()
+{
+    asynch_interrupt = false;
+}
+inline void     Solver::budgetOff()
+{
+    conflict_budget = propagation_budget = -1;
+}
+inline bool     Solver::withinBudget() const
+{
     return !asynch_interrupt &&
            (conflict_budget    < 0 || conflicts < (uint64_t)conflict_budget) &&
-           (propagation_budget < 0 || propagations < (uint64_t)propagation_budget); }
+           (propagation_budget < 0 || propagations < (uint64_t)propagation_budget);
+}
 
 // FIXME: after the introduction of asynchronous interrruptions the solve-versions that return a
 // pure bool do not give a safe interface. Either interrupts must be possible to turn off here, or
 // all calls to solve must return an 'lbool'. I'm not yet sure which I prefer.
-inline bool     Solver::solve         ()                    { budgetOff(); assumptions.clear(); return solve_() == l_True; }
-inline bool     Solver::solve         (Lit p)               { budgetOff(); assumptions.clear(); assumptions.push(p); return solve_() == l_True; }
-inline bool     Solver::solve         (Lit p, Lit q)        { budgetOff(); assumptions.clear(); assumptions.push(p); assumptions.push(q); return solve_() == l_True; }
-inline bool     Solver::solve         (Lit p, Lit q, Lit r) { budgetOff(); assumptions.clear(); assumptions.push(p); assumptions.push(q); assumptions.push(r); return solve_() == l_True; }
-inline bool     Solver::solve         (const vec<Lit>& assumps){ budgetOff(); assumps.copyTo(assumptions); return solve_() == l_True; }
-inline lbool    Solver::solveLimited  (const vec<Lit>& assumps){ assumps.copyTo(assumptions); return solve_(); }
-inline bool     Solver::okay          ()      const   { return ok; }
+inline bool     Solver::solve         ()
+{
+    budgetOff();
+    assumptions.clear();
+    return solve_() == l_True;
+}
+inline bool     Solver::solve         (Lit p)
+{
+    budgetOff();
+    assumptions.clear();
+    assumptions.push(p);
+    return solve_() == l_True;
+}
+inline bool     Solver::solve         (Lit p, Lit q)
+{
+    budgetOff();
+    assumptions.clear();
+    assumptions.push(p);
+    assumptions.push(q);
+    return solve_() == l_True;
+}
+inline bool     Solver::solve         (Lit p, Lit q, Lit r)
+{
+    budgetOff();
+    assumptions.clear();
+    assumptions.push(p);
+    assumptions.push(q);
+    assumptions.push(r);
+    return solve_() == l_True;
+}
+inline bool     Solver::solve         (const vec<Lit>& assumps)
+{
+    budgetOff();
+    assumps.copyTo(assumptions);
+    return solve_() == l_True;
+}
+inline lbool    Solver::solveLimited  (const vec<Lit>& assumps)
+{
+    assumps.copyTo(assumptions);
+    return solve_();
+}
+inline bool     Solver::okay          ()      const
+{
+    return ok;
+}
 
-inline void     Solver::toDimacs     (const char* file){ vec<Lit> as; toDimacs(file, as); }
-inline void     Solver::toDimacs     (const char* file, Lit p){ vec<Lit> as; as.push(p); toDimacs(file, as); }
-inline void     Solver::toDimacs     (const char* file, Lit p, Lit q){ vec<Lit> as; as.push(p); as.push(q); toDimacs(file, as); }
-inline void     Solver::toDimacs     (const char* file, Lit p, Lit q, Lit r){ vec<Lit> as; as.push(p); as.push(q); as.push(r); toDimacs(file, as); }
+inline void     Solver::toDimacs     (const char* file)
+{
+    vec<Lit> as;
+    toDimacs(file, as);
+}
+inline void     Solver::toDimacs     (const char* file, Lit p)
+{
+    vec<Lit> as;
+    as.push(p);
+    toDimacs(file, as);
+}
+inline void     Solver::toDimacs     (const char* file, Lit p, Lit q)
+{
+    vec<Lit> as;
+    as.push(p);
+    as.push(q);
+    toDimacs(file, as);
+}
+inline void     Solver::toDimacs     (const char* file, Lit p, Lit q, Lit r)
+{
+    vec<Lit> as;
+    as.push(p);
+    as.push(q);
+    as.push(r);
+    toDimacs(file, as);
+}
 
 
 
@@ -527,8 +720,8 @@ inline void Solver::printLit(Lit l)
 
 inline void Solver::printClause(CRef cr)
 {
-  Clause &c = ca[cr];
-    for (int i = 0; i < c.size(); i++){
+    Clause &c = ca[cr];
+    for (int i = 0; i < c.size(); i++) {
         printLit(c[i]);
         printf(" ");
     }
@@ -536,12 +729,12 @@ inline void Solver::printClause(CRef cr)
 
 inline void Solver::printInitialClause(CRef cr)
 {
-  Clause &c = ca[cr];
-    for (int i = 0; i < c.size(); i++){
-      if(!isSelector(var(c[i]))) {
-	printLit(c[i]);
-        printf(" ");
-      }
+    Clause &c = ca[cr];
+    for (int i = 0; i < c.size(); i++) {
+        if(!isSelector(var(c[i]))) {
+            printLit(c[i]);
+            printf(" ");
+        }
     }
 }
 
@@ -570,7 +763,7 @@ struct reduceDB_lt {
         return ca[x].activity() < ca[y].activity();
         //return x->size() < y->size();
 
-        //return ca[x].size() > 2 && (ca[y].size() == 2 || ca[x].activity() < ca[y].activity()); } 
+        //return ca[x].size() > 2 && (ca[y].size() == 2 || ca[x].activity() < ca[y].activity()); }
     }
 };
 
