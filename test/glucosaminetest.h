@@ -17,7 +17,7 @@
 #define GLUCOSAMINETEST_H_
 
 
-class GlucosamineTest: public ::testing::Test
+class GlucosamineTest : public ::testing::Test
 {
 public:
     GlucosamineTest() {}
