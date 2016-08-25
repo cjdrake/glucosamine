@@ -21,3 +21,8 @@ add_custom_target(
     COMMAND ${gdb_path} a.out
     DEPENDS a.out
 )
+
+include(CodeCoverage)
+
+# make cover
+setup_target_for_coverage(cover a.out html)
