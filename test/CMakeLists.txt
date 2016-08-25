@@ -12,3 +12,12 @@ add_custom_target(
     COMMAND a.out
     DEPENDS a.out
 )
+
+find_program(gdb_path gdb)
+
+# make debug
+add_custom_target(
+    debug
+    COMMAND ${gdb_path} a.out
+    DEPENDS a.out
+)
