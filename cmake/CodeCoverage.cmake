@@ -93,7 +93,7 @@ function(setup_target_for_coverage
         # Run tests
         COMMAND ${test_command} ${ARGV3}
 
-        # Capturing lcov counters and generating report
+        # Capture lcov counters and generate report
         COMMAND ${lcov_path} --directory . --capture --output-file ${coverage_info}
         COMMAND ${lcov_path} --remove ${coverage_info} '/usr/*' 'test/*' 'third_party/*' --output-file ${coverage_cleaned}
         COMMAND ${genhtml_path} -o ${_outputname} ${coverage_cleaned}
@@ -102,8 +102,9 @@ function(setup_target_for_coverage
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
 
-    # Show info where to find the report
-    add_custom_command(TARGET ${_targetname} POST_BUILD
+    # Show report location
+    add_custom_command(
+        TARGET ${_targetname} POST_BUILD
         COMMAND ;
         COMMENT "Report: ${CMAKE_BINARY_DIR}/${_outputname}/index.html"
     )
