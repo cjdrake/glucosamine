@@ -5,8 +5,6 @@ find_program(gdb_path gdb)
 # a.out
 file(GLOB srcs "*.h" "*.cc")
 add_executable(a.out ${srcs})
-target_compile_options(a.out PRIVATE --std=c++11)
-target_include_directories(a.out PRIVATE ${gtest_SOURCE_DIR}/include)
 target_link_libraries(a.out glucosamine gtest)
 
 # make test

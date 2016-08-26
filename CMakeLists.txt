@@ -4,13 +4,11 @@ project(glucosamine)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-set(glucosamine_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src)
-
 # libglucosamine.a
 file(GLOB_RECURSE srcs "src/*.h" "src/core/Solver.cc")
 add_library(glucosamine STATIC ${srcs})
-target_compile_options(glucosamine PRIVATE --std=c++11)
-target_include_directories(glucosamine PUBLIC ${glucosamine_INCLUDE_DIRS})
+target_compile_options(glucosamine PUBLIC --std=c++11)
+target_include_directories(glucosamine PUBLIC ${PROJECT_SOURCE_DIR}/src)
 
 # Unit tests
 if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
