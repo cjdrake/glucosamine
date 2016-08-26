@@ -1,6 +1,9 @@
-file(GLOB srcs "*.h" "*.cc")
+include(CodeCoverage) # setup_target_for_coverage
+
+find_program(gdb_path gdb)
 
 # a.out
+file(GLOB srcs "*.h" "*.cc")
 add_executable(a.out ${srcs})
 target_compile_options(a.out PRIVATE --std=c++11)
 target_include_directories(a.out PRIVATE ${gtest_SOURCE_DIR}/include)
@@ -13,16 +16,12 @@ add_custom_target(
     DEPENDS a.out
 )
 
-find_program(gdb_path gdb)
-
 # make debug
 add_custom_target(
     debug
     COMMAND ${gdb_path} a.out
     DEPENDS a.out
 )
-
-include(CodeCoverage)
 
 # make cover
 setup_target_for_coverage(cover a.out html)
