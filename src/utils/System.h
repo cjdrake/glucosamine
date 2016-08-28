@@ -18,8 +18,10 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **************************************************************************************************/
 
+
 #ifndef Glucose_System_h
 #define Glucose_System_h
+
 
 #if defined(__linux__)
 #include <fpu_control.h>
@@ -27,28 +29,27 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #include "mtl/IntTypes.h"
 
-//-------------------------------------------------------------------------------------------------
 
 namespace Glucose {
 
-static inline double cpuTime(void); // CPU-time in seconds.
-extern double memUsed();            // Memory in mega bytes (returns 0 for unsupported architectures).
-extern double memUsedPeak();        // Peak-memory in mega bytes (returns 0 for unsupported architectures).
+// Return current CPU time in seconds
+static inline double cpuTime();
 
-}
+}  // namespace Glucose
 
-//-------------------------------------------------------------------------------------------------
-// Implementation of inline functions:
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
+
 #include <time.h>
 
-static inline double Glucose::cpuTime(void)
+static inline double
+Glucose::cpuTime()
 {
     return (double)clock() / CLOCKS_PER_SEC;
 }
 
 #else
+
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
@@ -60,7 +61,7 @@ static inline double Glucose::cpuTime(void)
     return (double)ru.ru_utime.tv_sec + (double)ru.ru_utime.tv_usec / 1000000;
 }
 
-#endif
+#endif  // defined(_MSC_VER) || defined(__MINGW32__)
 
 
-#endif
+#endif  // Glucose_System_h
