@@ -17,56 +17,44 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **************************************************************************************************/
 
+
 #ifndef Glucose_Options_h
 #define Glucose_Options_h
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
 
 #include "mtl/IntTypes.h"
 #include "mtl/Vec.h"
-#include "utils/ParseUtils.h"
+
 
 namespace Glucose {
-
 
 //==================================================================================================
 // Options is an abstract class that gives the interface for all types options:
 
-
-class Option {
+class Option
+{
 protected:
     const char* name;
     const char* description;
     const char* category;
     const char* type_name;
 
-    static vec<Option*>& getOptionList () {
+    static vec<Option*>& getOptionList ()
+    {
         static vec<Option*> options;
         return options;
     }
 
-    struct OptionLt {
-        bool operator()(const Option* x, const Option* y) {
-            int test1 = strcmp(x->category, y->category);
-            return test1 < 0 || (test1 == 0 && strcmp(x->type_name, y->type_name) < 0);
-        }
-    };
-
-    Option(const char* name_,
-           const char* desc_,
-           const char* cate_,
-           const char* type_) :
-        name       (name_)
+public:
+    Option(const char* name_, const char* desc_, const char* cate_, const char* type_)
+        : name       (name_)
         , description(desc_)
         , category   (cate_)
-        , type_name  (type_) {
+        , type_name  (type_)
+    {
         getOptionList().push(this);
     }
 
-public:
     virtual ~Option() {}
 };
 
@@ -78,151 +66,198 @@ public:
 struct IntRange {
     int begin;
     int end;
-    IntRange(int b, int e) : begin(b), end(e) {}
+
+    IntRange(int b, int e)
+        : begin(b)
+        , end(e)
+    {}
 };
 
-struct Int64Range {
+
+struct Int64Range
+{
     int64_t begin;
     int64_t end;
-    Int64Range(int64_t b, int64_t e) : begin(b), end(e) {}
+
+    Int64Range(int64_t b, int64_t e)
+        : begin(b)
+        , end(e)
+    {}
 };
 
-struct DoubleRange {
+
+struct DoubleRange
+{
     double begin;
     double end;
-    bool  begin_inclusive;
-    bool  end_inclusive;
-    DoubleRange(double b, bool binc, double e, bool einc) : begin(b), end(e), begin_inclusive(binc), end_inclusive(einc) {}
+    bool begin_inclusive;
+    bool end_inclusive;
+
+    DoubleRange(double b, bool binc, double e, bool einc)
+        : begin(b)
+        , end(e)
+        , begin_inclusive(binc)
+        , end_inclusive(einc)
+    {}
 };
 
 
-//==================================================================================================
-// Double options:
-
-
-class DoubleOption : public Option {
+class DoubleOption : public Option
+{
 protected:
     DoubleRange range;
-    double      value;
+    double value;
 
 public:
-    DoubleOption(const char* c, const char* n, const char* d, double def = double(), DoubleRange r = DoubleRange(-HUGE_VAL, false, HUGE_VAL, false))
-        : Option(n, d, c, "<double>"), range(r), value(def) {
-        // FIXME: set LC_NUMERIC to "C" to make sure that strtof/strtod parses decimal point correctly.
+    DoubleOption(const char * c, const char * n, const char * d,
+                 double def = double(),
+                 DoubleRange r = DoubleRange(-HUGE_VAL, false, HUGE_VAL, false))
+        : Option(n, d, c, "<double>")
+        , range(r)
+        , value(def)
+    {}
+
+    operator double (void) const
+    {
+        return value;
     }
 
-    operator      double   (void) const {
+    operator double & (void)
+    {
         return value;
     }
-    operator      double&  (void)       {
-        return value;
-    }
-    DoubleOption& operator=(double x)   {
+
+    DoubleOption & operator= (double x)
+    {
         value = x;
         return *this;
     }
 };
 
 
-//==================================================================================================
-// Int options:
-
-
-class IntOption : public Option {
+class IntOption : public Option
+{
 protected:
     IntRange range;
-    int32_t  value;
+    int32_t value;
 
 public:
-    IntOption(const char* c, const char* n, const char* d, int32_t def = int32_t(), IntRange r = IntRange(INT32_MIN, INT32_MAX))
-        : Option(n, d, c, "<int32>"), range(r), value(def) {}
+    IntOption(const char * c, const char * n, const char * d,
+              int32_t def = int32_t(),
+              IntRange r = IntRange(INT32_MIN, INT32_MAX))
+        : Option(n, d, c, "<int32>")
+        , range(r)
+        , value(def)
+    {}
 
-    operator   int32_t   (void) const {
+    operator int32_t (void) const
+    {
         return value;
     }
-    operator   int32_t&  (void)       {
+
+    operator int32_t & (void)
+    {
         return value;
     }
-    IntOption& operator= (int32_t x)  {
+
+    IntOption & operator= (int32_t x)
+    {
         value = x;
         return *this;
     }
 };
 
 
-// Leave this out for visual C++ until Microsoft implements C99 and gets support for strtoll.
-#ifndef _MSC_VER
-
-class Int64Option : public Option {
+class Int64Option : public Option
+{
 protected:
     Int64Range range;
-    int64_t  value;
+    int64_t value;
 
 public:
-    Int64Option(const char* c, const char* n, const char* d, int64_t def = int64_t(), Int64Range r = Int64Range(INT64_MIN, INT64_MAX))
-        : Option(n, d, c, "<int64>"), range(r), value(def) {}
+    Int64Option(const char * c, const char * n, const char * d,
+                int64_t def = int64_t(),
+                Int64Range r = Int64Range(INT64_MIN, INT64_MAX))
+        : Option(n, d, c, "<int64>")
+        , range(r)
+        , value(def)
+    {}
 
-    operator     int64_t   (void) const {
+    operator int64_t (void) const
+    {
         return value;
     }
-    operator     int64_t&  (void)       {
+
+    operator int64_t & (void)
+    {
         return value;
     }
-    Int64Option& operator= (int64_t x)  {
-        value = x;
-        return *this;
-    }
-};
 
-#endif
-
-//==================================================================================================
-// String option:
-
-
-class StringOption : public Option {
-    const char* value;
-public:
-    StringOption(const char* c, const char* n, const char* d, const char* def = NULL)
-        : Option(n, d, c, "<string>"), value(def) {}
-
-    operator      const char*  (void) const     {
-        return value;
-    }
-    operator      const char*& (void)           {
-        return value;
-    }
-    StringOption& operator=    (const char* x)  {
+    Int64Option& operator= (int64_t x)
+    {
         value = x;
         return *this;
     }
 };
 
 
-//==================================================================================================
-// Bool option:
+class StringOption : public Option
+{
+    const char * value;
+
+public:
+    StringOption(const char * c, const char * n, const char * d, const char * def = NULL)
+        : Option(n, d, c, "<string>")
+        , value(def)
+    {}
+
+    operator const char * (void) const
+    {
+        return value;
+    }
+
+    operator const char*& (void)
+    {
+        return value;
+    }
+
+    StringOption & operator= (const char* x)
+    {
+        value = x;
+        return *this;
+    }
+};
 
 
-class BoolOption : public Option {
+class BoolOption : public Option
+{
     bool value;
 
 public:
-    BoolOption(const char* c, const char* n, const char* d, bool v)
-        : Option(n, d, c, "<bool>"), value(v) {}
+    BoolOption(const char * c, const char * n, const char * d, bool v)
+        : Option(n, d, c, "<bool>")
+        , value(v)
+    {}
 
-    operator    bool     (void) const {
+    operator bool (void) const
+    {
         return value;
     }
-    operator    bool&    (void)       {
+
+    operator bool & (void)
+    {
         return value;
     }
-    BoolOption& operator=(bool b)     {
+
+    BoolOption & operator= (bool b)
+    {
         value = b;
         return *this;
     }
 };
 
-//=================================================================================================
-}
 
-#endif
+}  // namespace Glucose
+
+
+#endif  // Glucose_Options_h
