@@ -61,7 +61,7 @@ template <class T>
 class bqueue {
     vec<T>  elems;
     int     first;
-    int		last;
+    int     last;
     unsigned long long sumofqueue;
     int     maxsize;
     int     queuesize; // Number of current elements (must be < maxsize !)

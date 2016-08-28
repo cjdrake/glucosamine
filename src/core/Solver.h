@@ -50,6 +50,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef Glucose_Solver_h
 #define Glucose_Solver_h
 
+
 #include <cstdlib>  // FILE
 #include <cstdio>  // fprintf, printf
 

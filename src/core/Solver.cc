@@ -47,24 +47,21 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
 
-#include <math.h>
+
+#include <cmath>  // HUGE_VAL, pow
 
 #include "utils/System.h"
 #include "mtl/Sort.h"
 #include "core/Solver.h"
 
+
 using namespace Glucose;
 
-//=================================================================================================
-// Options:
 
 static const char* _cat = "CORE";
 static const char* _cr = "CORE -- RESTART";
 static const char* _cred = "CORE -- REDUCE";
 static const char* _cm = "CORE -- MINIMIZE";
-
-
-
 
 static DoubleOption opt_K(_cr, "K", "The constant used to force restart", 0.8, DoubleRange(0, false, 1, false));
 static DoubleOption opt_R(_cr, "R", "The constant used to block restart", 1.4, DoubleRange(1, false, 5, false));
@@ -78,7 +75,6 @@ static IntOption opt_lb_lbd_frozen_clause(_cred, "minLBDFrozenClause", "Protect 
 
 static IntOption opt_lb_size_minimzing_clause(_cm, "minSizeMinimizingClause", "The min size required to minimize clause", 30, IntRange(3, INT32_MAX));
 static IntOption opt_lb_lbd_minimzing_clause(_cm, "minLBDMinimizingClause", "The min LBD required to minimize clause", 6, IntRange(3, INT32_MAX));
-
 
 static DoubleOption opt_var_decay(_cat, "var-decay", "The variable activity decay factor (starting point)", 0.8, DoubleRange(0, false, 1, false));
 static DoubleOption opt_max_var_decay(_cat, "max-var-decay", "The variable activity decay factor", 0.95, DoubleRange(0, false, 1, false));
@@ -94,11 +90,9 @@ static DoubleOption opt_garbage_frac(_cat, "gc-frac", "The fraction of wasted me
 //=================================================================================================
 // Constructor/Destructor:
 
-Solver::Solver() :
-
-// Parameters (user settable):
-//
-    verbosity(0)
+Solver::Solver()
+    // Parameters (user settable):
+    : verbosity(0)
     , showModel(0)
     , K(opt_K)
     , R(opt_R)
@@ -125,8 +119,8 @@ Solver::Solver() :
     , panicModeLastRemoved(0), panicModeLastRemovedShared(0)
     , useUnaryWatched(false)
     , promoteOneWatchedClause(true)
-// Statistics: (formerly in 'SolverStats')
-//
+
+    // Statistics: (formerly in 'SolverStats')
     , nbPromoted(0)
     , originalClausesSeen(0)
     , sumDecisionLevels(0)
@@ -148,11 +142,11 @@ Solver::Solver() :
     , order_heap(VarOrderLt(activity))
     , progress_estimate(0)
     , remove_satisfied(true)
-    , reduceOnSize(false) //
+    , reduceOnSize(false)
     , reduceOnSizeSize(12) // Constant to use on size reductions
-    ,lastLearntClause(CRef_Undef)
-// Resource constraints:
-//
+    , lastLearntClause(CRef_Undef)
+
+    // Resource constraints:
     , conflict_budget(-1)
     , propagation_budget(-1)
     , asynch_interrupt(false)
@@ -176,8 +170,8 @@ Solver::Solver() :
 // Special constructor used for cloning solvers
 //-------------------------------------------------------
 
-Solver::Solver(const Solver &s) :
-    verbosity(s.verbosity)
+Solver::Solver(const Solver &s)
+    : verbosity(s.verbosity)
     , showModel(s.showModel)
     , K(s.K)
     , R(s.R)
@@ -204,8 +198,8 @@ Solver::Solver(const Solver &s) :
     , panicModeLastRemoved(s.panicModeLastRemoved), panicModeLastRemovedShared(s.panicModeLastRemovedShared)
     , useUnaryWatched(s.useUnaryWatched)
     , promoteOneWatchedClause(s.promoteOneWatchedClause)
-// Statistics: (formerly in 'SolverStats')
-//
+
+    // Statistics: (formerly in 'SolverStats')
     , nbPromoted(s.nbPromoted)
     , originalClausesSeen(s.originalClausesSeen)
     , sumDecisionLevels(s.sumDecisionLevels)
@@ -231,11 +225,11 @@ Solver::Solver(const Solver &s) :
     , order_heap(VarOrderLt(activity))
     , progress_estimate(s.progress_estimate)
     , remove_satisfied(s.remove_satisfied)
-    , reduceOnSize(s.reduceOnSize) //
+    , reduceOnSize(s.reduceOnSize)
     , reduceOnSizeSize(s.reduceOnSizeSize) // Constant to use on size reductions
-    ,lastLearntClause(CRef_Undef)
-// Resource constraints:
-//
+    , lastLearntClause(CRef_Undef)
+
+    // Resource constraints:
     , conflict_budget(s.conflict_budget)
     , propagation_budget(s.propagation_budget)
     , asynch_interrupt(s.asynch_interrupt)
@@ -275,12 +269,10 @@ Solver::Solver(const Solver &s) :
 
     s.lbdQueue.copyTo(lbdQueue);
     s.trailQueue.copyTo(trailQueue);
-
 }
 
 Solver::~Solver()
-{
-}
+{}
 
 /****************************************************************
  Set the incremental mode

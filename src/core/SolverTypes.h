@@ -51,9 +51,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef Glucose_SolverTypes_h
 #define Glucose_SolverTypes_h
 
-#include <assert.h>
-#include <stdint.h>
-#include <pthread.h>
+
+#include <cassert>  // assert
+#include <cstdint>  // uint8_t, uint32_t
 
 #include "mtl/IntTypes.h"
 #include "mtl/Alg.h"
@@ -673,8 +673,8 @@ inline void Clause::strengthen(Lit p)
     calcAbstraction();
 }
 
-//=================================================================================================
-}
+
+}  // namespace Glucose
 
 
-#endif
+#endif  // Glucose_SolverTypes_h

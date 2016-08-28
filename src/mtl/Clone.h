@@ -4,10 +4,15 @@
 
 namespace Glucose {
 
-class Clone {
+
+class Clone
+{
 public:
-    virtual Clone* clone() const = 0;
-};
+    virtual Clone * clone() const = 0;
 };
 
-#endif
+
+}  // namespace Glucose
+
+
+#endif  // Glucose_Clone_h

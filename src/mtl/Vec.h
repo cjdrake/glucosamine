@@ -18,15 +18,18 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **************************************************************************************************/
 
+
 #ifndef Glucose_Vec_h
 #define Glucose_Vec_h
 
-#include <assert.h>
+#include <cassert>  // assert
+#include <cstring>  // memcpy
+
 #include <new>
 
 #include "mtl/IntTypes.h"
 #include "mtl/XAlloc.h"
-#include<string.h>
+
 
 namespace Glucose {
 
@@ -203,7 +206,8 @@ void vec<T>::clear(bool dealloc)
     }
 }
 
-//=================================================================================================
-}
 
-#endif
+}  // namespace Glucose
+
+
+#endif  // Glucose_Vec_h
