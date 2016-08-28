@@ -31,15 +31,6 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 namespace Glucose {
 
-//==================================================================================================
-// Top-level option parse/help functions:
-
-
-extern void parseOptions     (int& argc, char** argv, bool strict = false);
-extern void printUsageAndExit(int  argc, char** argv, bool verbose = false);
-extern void setUsageHelp     (const char* str);
-extern void setHelpPrefixStr (const char* str);
-
 
 //==================================================================================================
 // Options is an abstract class that gives the interface for all types options:
@@ -55,14 +46,6 @@ protected:
     static vec<Option*>& getOptionList () {
         static vec<Option*> options;
         return options;
-    }
-    static const char*&  getUsageString() {
-        static const char* usage_str;
-        return usage_str;
-    }
-    static const char*&  getHelpPrefixString() {
-        static const char* help_prefix_str = "";
-        return help_prefix_str;
     }
 
     struct OptionLt {
@@ -85,11 +68,6 @@ protected:
 
 public:
     virtual ~Option() {}
-
-    friend  void parseOptions      (int& argc, char** argv, bool strict);
-    friend  void printUsageAndExit (int  argc, char** argv, bool verbose);
-    friend  void setUsageHelp      (const char* str);
-    friend  void setHelpPrefixStr  (const char* str);
 };
 
 
