@@ -52,7 +52,6 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "utils/System.h"
 #include "mtl/Sort.h"
 #include "core/Solver.h"
-#include "core/Constants.h"
 
 using namespace Glucose;
 
@@ -1172,6 +1171,7 @@ NextClauseUnary:
 |    clauses are clauses that are reason to some assignment. Binary clauses are never removed.
 |________________________________________________________________________________________________@*/
 
+static const int RATIOREMOVECLAUSES = 2;
 
 void Solver::reduceDB()
 {
@@ -1288,6 +1288,9 @@ bool Solver::simplify()
 |    all variables are decision variables, this means that the clause set is satisfiable. 'l_False'
 |    if the clause set is unsatisfiable. 'l_Undef' if the bound on number of conflicts is reached.
 |________________________________________________________________________________________________@*/
+
+static const int LOWER_BOUND_FOR_BLOCKING_RESTART = 10000;
+
 lbool Solver::search(int nof_conflicts)
 {
     assert(ok);
