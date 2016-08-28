@@ -54,7 +54,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "mtl/Alg.h"
 #include "utils/Options.h"
 #include "core/SolverTypes.h"
-#include "core/BoundedQueue.h"
+#include "mtl/BoundedQueue.h"
 #include "mtl/Clone.h"
 
 
