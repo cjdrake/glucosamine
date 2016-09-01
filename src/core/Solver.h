@@ -138,7 +138,6 @@ public:
     // Incremental mode
     void setIncrementalMode();
     void initNbInitialVars(int nb);
-    void printIncrementalStats();
     bool isIncremental();
     // Resource contraints:
     //

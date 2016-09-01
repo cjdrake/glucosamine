@@ -1449,27 +1449,6 @@ double Solver::progressEstimate() const
     return progress / nVars();
 }
 
-void Solver::printIncrementalStats()
-{
-
-    printf("c---------- Glucose Stats -------------------------\n");
-    printf("c restarts              : %" PRIu64"\n", starts);
-    printf("c nb ReduceDB           : %" PRIu64"\n", nbReduceDB);
-    printf("c nb removed Clauses    : %" PRIu64"\n", nbRemovedClauses);
-    printf("c nb learnts DL2        : %" PRIu64"\n", nbDL2);
-    printf("c nb learnts size 2     : %" PRIu64"\n", nbBin);
-    printf("c nb learnts size 1     : %" PRIu64"\n", nbUn);
-
-    printf("c conflicts             : %" PRIu64"\n", conflicts);
-    printf("c decisions             : %" PRIu64"\n", decisions);
-    printf("c propagations          : %" PRIu64"\n", propagations);
-
-    printf("\nc SAT Calls             : %d in %g seconds\n",nbSatCalls,totalTime4Sat);
-    printf("c UNSAT Calls           : %d in %g seconds\n",nbUnsatCalls,totalTime4Unsat);
-
-    printf("c--------------------------------------------------\n");
-}
-
 // NOTE: assumptions passed in member-variable 'assumptions'.
 
 lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless in core but useful for SimpSolver....
