@@ -139,7 +139,6 @@ Solver::Solver()
     , simpDB_assigns(-1)
     , simpDB_props(0)
     , order_heap(VarOrderLt(activity))
-    , progress_estimate(0)
     , remove_satisfied(true)
     , reduceOnSize(false)
     , reduceOnSizeSize(12) // Constant to use on size reductions
@@ -221,7 +220,6 @@ Solver::Solver(const Solver &s)
     , simpDB_assigns(s.simpDB_assigns)
     , simpDB_props(s.simpDB_props)
     , order_heap(VarOrderLt(activity))
-    , progress_estimate(s.progress_estimate)
     , remove_satisfied(s.remove_satisfied)
     , reduceOnSize(s.reduceOnSize)
     , reduceOnSizeSize(s.reduceOnSizeSize) // Constant to use on size reductions
@@ -1375,7 +1373,6 @@ lbool Solver::search(int nof_conflicts)
             if (
                 (lbdQueue.isvalid() && ((lbdQueue.getavg() * K) > (sumLBD / conflictsRestarts)))) {
                 lbdQueue.fastclear();
-                progress_estimate = progressEstimate();
                 int bt = 0;
                 if(incremental) // DO NOT BACKTRACK UNTIL 0.. USELESS
                     bt = (decisionLevel()<assumptions.size()) ? decisionLevel() : assumptions.size();
@@ -1432,20 +1429,6 @@ lbool Solver::search(int nof_conflicts)
             uncheckedEnqueue(next);
         }
     }
-}
-
-double Solver::progressEstimate() const
-{
-    double progress = 0;
-    double F = 1.0 / nVars();
-
-    for (int i = 0; i <= decisionLevel(); i++) {
-        int beg = i == 0 ? 0 : trail_lim[i - 1];
-        int end = i == decisionLevel() ? trail.size() : trail_lim[i];
-        progress += pow(F, i) * (end - beg);
-    }
-
-    return progress / nVars();
 }
 
 // NOTE: assumptions passed in member-variable 'assumptions'.
