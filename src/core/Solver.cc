@@ -48,9 +48,6 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
  **************************************************************************************************/
 
 
-#include <cmath>  // HUGE_VAL, pow
-
-#include "utils/System.h"
 #include "mtl/Sort.h"
 #include "core/Solver.h"
 
@@ -58,42 +55,75 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 using namespace Glucose;
 
 
-static const char* _cat = "CORE";
-static const char* _cr = "CORE -- RESTART";
-static const char* _cred = "CORE -- REDUCE";
-static const char* _cm = "CORE -- MINIMIZE";
+// CORE -- RESTART
 
-static DoubleOption opt_K(_cr, "K", "The constant used to force restart", 0.8, DoubleRange(0, false, 1, false));
-static DoubleOption opt_R(_cr, "R", "The constant used to block restart", 1.4, DoubleRange(1, false, 5, false));
-static IntOption opt_size_lbd_queue(_cr, "szLBDQueue", "The size of moving average for LBD (restarts)", 50, IntRange(10, INT32_MAX));
-static IntOption opt_size_trail_queue(_cr, "szTrailQueue", "The size of moving average for trail (block restarts)", 5000, IntRange(10, INT32_MAX));
+// Used to force restart. Range: (0, 1)
+static double const opt_K = 0.8;
 
-static IntOption opt_first_reduce_db(_cred, "firstReduceDB", "The number of conflicts before the first reduce DB", 2000, IntRange(0, INT32_MAX));
-static IntOption opt_inc_reduce_db(_cred, "incReduceDB", "Increment for reduce DB", 300, IntRange(0, INT32_MAX));
-static IntOption opt_spec_inc_reduce_db(_cred, "specialIncReduceDB", "Special increment for reduce DB", 1000, IntRange(0, INT32_MAX));
-static IntOption opt_lb_lbd_frozen_clause(_cred, "minLBDFrozenClause", "Protect clauses if their LBD decrease and is lower than (for one turn)", 30, IntRange(0, INT32_MAX));
+// Used to block restart. Range: (1, 5)
+static double const opt_R = 1.4;
 
-static IntOption opt_lb_size_minimzing_clause(_cm, "minSizeMinimizingClause", "The min size required to minimize clause", 30, IntRange(3, INT32_MAX));
-static IntOption opt_lb_lbd_minimzing_clause(_cm, "minLBDMinimizingClause", "The min LBD required to minimize clause", 6, IntRange(3, INT32_MAX));
+// The size of moving average for LBD (restarts). Range: [10, INT32_MAX]
+static int32_t const opt_size_lbd_queue = 50;
 
-static DoubleOption opt_var_decay(_cat, "var-decay", "The variable activity decay factor (starting point)", 0.8, DoubleRange(0, false, 1, false));
-static DoubleOption opt_max_var_decay(_cat, "max-var-decay", "The variable activity decay factor", 0.95, DoubleRange(0, false, 1, false));
-static DoubleOption opt_clause_decay(_cat, "cla-decay", "The clause activity decay factor", 0.999, DoubleRange(0, false, 1, false));
-static DoubleOption opt_random_var_freq(_cat, "rnd-freq", "The frequency with which the decision heuristic tries to choose a random variable", 0, DoubleRange(0, true, 1, true));
-static DoubleOption opt_random_seed(_cat, "rnd-seed", "Used by the random variable selection", 91648253, DoubleRange(0, false, HUGE_VAL, false));
-static IntOption opt_ccmin_mode(_cat, "ccmin-mode", "Controls conflict clause minimization (0=none, 1=basic, 2=deep)", 2, IntRange(0, 2));
-static IntOption opt_phase_saving(_cat, "phase-saving", "Controls the level of phase saving (0=none, 1=limited, 2=full)", 2, IntRange(0, 2));
-static BoolOption opt_rnd_init_act(_cat, "rnd-init", "Randomize the initial activity", false);
-static DoubleOption opt_garbage_frac(_cat, "gc-frac", "The fraction of wasted memory allowed before a garbage collection is triggered", 0.20, DoubleRange(0, false, HUGE_VAL, false));
+// The size of moving average for trail (block restarts). Range: [10, INT32_MAX]
+static int32_t const opt_size_trail_queue = 5000;
 
+// CORE -- REDUCE
 
-//=================================================================================================
-// Constructor/Destructor:
+// The number of conflicts before the first reduce DB. Range: [0, INT32_MAX]
+static int32_t const opt_first_reduce_db = 2000;
+
+// Increment for reduce DB. Range: [0, INT32_MAX]
+static int32_t const opt_inc_reduce_db = 300;
+
+// Special increment for reduce DB. Range: [0, INT32_MAX]
+static int32_t const opt_spec_inc_reduce_db = 1000;
+
+// Protect clauses if their LBD decrease and is lower than (for one turn). Range: [0, INT32_MAX]
+static int32_t const opt_lb_lbd_frozen_clause = 30;
+
+// CORE -- MINIMIZE
+
+// The min size required to minimize clause. Range: [3, INT32_MAX]
+static int32_t const opt_lb_size_minimzing_clause = 30;
+
+// The min LBD required to minimize clause. Range: [3, INT32_MAX]
+static int32_t const opt_lb_lbd_minimzing_clause = 6;
+
+// CORE
+
+// The variable activity decay factor (starting point). Range: (0, 1)
+static double const opt_var_decay = 0.8;
+
+// The variable activity decay factor. Range: (0, 1)
+static double const opt_max_var_decay = 0.95;
+
+// The clause activity decay factor. Range: (0, 1)
+static double const opt_clause_decay = 0.999;
+
+// The frequency with which the decision heuristic tries to choose a random variable. Range: (0, 1)
+static double const opt_random_var_freq = 0;
+
+// Used by the random variable selection. Range: (0, HUGE_VAL)
+static double const opt_random_seed = 91648253;
+
+// Controls conflict clause minimization. Range: (0=none, 1=basic, 2=deep)
+static int32_t const opt_ccmin_mode = 2;
+
+// Controls the level of phase saving. Range: (0=none, 1=limited, 2=full)
+static int32_t const opt_phase_saving = 2;
+
+// Randomize the initial activity
+static bool const opt_rnd_init_act = false;
+
+// The fraction of wasted memory allowed before a garbage collection is triggered. Range: (0, HUGE_VAL)
+static double const opt_garbage_frac = 0.20;
+
 
 Solver::Solver()
     // Parameters (user settable):
-    : showModel(0)
-    , K(opt_K)
+    : K(opt_K)
     , R(opt_R)
     , sizeLBDQueue(opt_size_lbd_queue)
     , sizeTrailQueue(opt_size_trail_queue)
@@ -150,8 +180,6 @@ Solver::Solver()
     , asynch_interrupt(false)
     , incremental(false)
     , nbVarsInitialFormula(INT32_MAX)
-    , totalTime4Sat(0.)
-    , totalTime4Unsat(0.)
     , nbSatCalls(0)
     , nbUnsatCalls(0)
 {
@@ -169,8 +197,7 @@ Solver::Solver()
 //-------------------------------------------------------
 
 Solver::Solver(const Solver &s)
-    : showModel(s.showModel)
-    , K(s.K)
+    : K(s.K)
     , R(s.R)
     , sizeLBDQueue(s.sizeLBDQueue)
     , sizeTrailQueue(s.sizeTrailQueue)
@@ -231,8 +258,6 @@ Solver::Solver(const Solver &s)
     , asynch_interrupt(s.asynch_interrupt)
     , incremental(s.incremental)
     , nbVarsInitialFormula(s.nbVarsInitialFormula)
-    , totalTime4Sat(s.totalTime4Sat)
-    , totalTime4Unsat(s.totalTime4Unsat)
     , nbSatCalls(s.nbSatCalls)
     , nbUnsatCalls(s.nbUnsatCalls)
 {
@@ -469,7 +494,7 @@ void Solver::removeClause(CRef cr, bool inPurgatory)
 
 bool Solver::satisfied(const Clause& c) const
 {
-    if(incremental)
+    if (incremental)
         return (value(c[0]) == l_True) || (value(c[1]) == l_True);
 
     // Default mode
@@ -488,12 +513,12 @@ inline unsigned int Solver::computeLBD(const vec<Lit> & lits,int end)
     int nblevels = 0;
     MYFLAG++;
 
-    if(incremental) { // ----------------- INCREMENTAL MODE
-        if(end==-1) end = lits.size();
+    if (incremental) { // ----------------- INCREMENTAL MODE
+        if (end==-1) end = lits.size();
         int nbDone = 0;
-        for(int i=0; i<lits.size(); i++) {
-            if(nbDone>=end) break;
-            if(isSelector(var(lits[i]))) continue;
+        for (int i=0; i<lits.size(); i++) {
+            if (nbDone>=end) break;
+            if (isSelector(var(lits[i]))) continue;
             nbDone++;
             int l = level(var(lits[i]));
             if (permDiff[l] != MYFLAG) {
@@ -502,7 +527,7 @@ inline unsigned int Solver::computeLBD(const vec<Lit> & lits,int end)
             }
         }
     } else { // -------- DEFAULT MODE. NOT A LOT OF DIFFERENCES... BUT EASIER TO READ
-        for(int i=0; i<lits.size(); i++) {
+        for (int i=0; i<lits.size(); i++) {
             int l = level(var(lits[i]));
             if (permDiff[l] != MYFLAG) {
                 permDiff[l] = MYFLAG;
@@ -522,11 +547,11 @@ inline unsigned int Solver::computeLBD(const Clause &c)
     int nblevels = 0;
     MYFLAG++;
 
-    if(incremental) { // ----------------- INCREMENTAL MODE
+    if (incremental) { // ----------------- INCREMENTAL MODE
         unsigned int nbDone = 0;
-        for(int i=0; i<c.size(); i++) {
-            if(nbDone>=c.sizeWithoutSelectors()) break;
-            if(isSelector(var(c[i]))) continue;
+        for (int i=0; i<c.size(); i++) {
+            if (nbDone>=c.sizeWithoutSelectors()) break;
+            if (isSelector(var(c[i]))) continue;
             nbDone++;
             int l = level(var(c[i]));
             if (permDiff[l] != MYFLAG) {
@@ -535,7 +560,7 @@ inline unsigned int Solver::computeLBD(const Clause &c)
             }
         }
     } else { // -------- DEFAULT MODE. NOT A LOT OF DIFFERENCES... BUT EASIER TO READ
-        for(int i=0; i<c.size(); i++) {
+        for (int i=0; i<c.size(); i++) {
             int l = level(var(c[i]));
             if (permDiff[l] != MYFLAG) {
                 permDiff[l] = MYFLAG;
@@ -711,7 +736,7 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
             if (!seen[var(q)]) {
                 if (level(var(q)) == 0) {
                 } else { // Here, the old case
-                    if(!isSelector(var(q)))
+                    if (!isSelector(var(q)))
                         varBumpActivity(var(q));
                     seen[var(q)] = 1;
                     if (level(var(q)) >= decisionLevel()) {
@@ -720,7 +745,7 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
                         if (!isSelector(var(q)) &&  (reason(var(q)) != CRef_Undef) && ca[reason(var(q))].learnt())
                             lastDecisionLevel.push(q);
                     } else {
-                        if(isSelector(var(q))) {
+                        if (isSelector(var(q))) {
                             assert(value(q) == l_False);
                             selectors.push(q);
                         } else
@@ -806,11 +831,11 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
         out_learnt[1] = p;
         out_btlevel = level(var(p));
     }
-    if(incremental) {
+    if (incremental) {
         szWithoutSelectors = 0;
-        for(int i=0; i<out_learnt.size(); i++) {
-            if(!isSelector(var((out_learnt[i])))) szWithoutSelectors++;
-            else if(i>0) break;
+        for (int i=0; i<out_learnt.size(); i++) {
+            if (!isSelector(var((out_learnt[i])))) szWithoutSelectors++;
+            else if (i>0) break;
         }
     } else
         szWithoutSelectors = out_learnt.size();
@@ -993,25 +1018,25 @@ CRef Solver::propagate()
                 *j++ = w;
                 continue;
             }
-            if(incremental) { // ----------------- INCREMENTAL MODE
+            if (incremental) { // ----------------- INCREMENTAL MODE
                 int choosenPos = -1;
                 for (int k = 2; k < c.size(); k++) {
 
                     if (value(c[k]) != l_False) {
-                        if(decisionLevel()>assumptions.size()) {
+                        if (decisionLevel()>assumptions.size()) {
                             choosenPos = k;
                             break;
                         } else {
                             choosenPos = k;
 
-                            if(value(c[k])==l_True || !isSelector(var(c[k]))) {
+                            if (value(c[k])==l_True || !isSelector(var(c[k]))) {
                                 break;
                             }
                         }
 
                     }
                 }
-                if(choosenPos!=-1) {
+                if (choosenPos!=-1) {
                     c[1] = c[choosenPos];
                     c[choosenPos] = false_lit;
                     watches[~c[1]].push(w);
@@ -1168,9 +1193,9 @@ void Solver::reduceDB()
     sort(learnts, reduceDB_lt(ca));
 
     // We have a lot of "good" clauses, it is difficult to compare them. Keep more !
-    if(ca[learnts[learnts.size() / RATIOREMOVECLAUSES]].lbd()<=3) nbclausesbeforereduce +=specialIncReduceDB;
+    if (ca[learnts[learnts.size() / RATIOREMOVECLAUSES]].lbd()<=3) nbclausesbeforereduce +=specialIncReduceDB;
     // Useless :-)
-    if(ca[learnts.last()].lbd()<=5)  nbclausesbeforereduce +=specialIncReduceDB;
+    if (ca[learnts.last()].lbd()<=5)  nbclausesbeforereduce +=specialIncReduceDB;
 
 
     // Don't delete binary or locked clauses. From the rest, delete clauses from the first half
@@ -1184,7 +1209,7 @@ void Solver::reduceDB()
             removeClause(learnts[i]);
             nbRemovedClauses++;
         } else {
-            if(!c.canBeDel()) limit++; //we keep c, so we can delete an other clause
+            if (!c.canBeDel()) limit++; //we keep c, so we can delete an other clause
             c.setCanBeDel(true);       // At the next step, c can be delete
             learnts[j++] = learnts[i];
         }
@@ -1298,7 +1323,7 @@ lbool Solver::search(int nof_conflicts)
         CRef confl = propagate();
 
         if (confl != CRef_Undef) {
-            if(parallelJobIsFinished())
+            if (parallelJobIsFinished())
                 return l_Undef;
 
 
@@ -1374,7 +1399,7 @@ lbool Solver::search(int nof_conflicts)
                 (lbdQueue.isvalid() && ((lbdQueue.getavg() * K) > (sumLBD / conflictsRestarts)))) {
                 lbdQueue.fastclear();
                 int bt = 0;
-                if(incremental) // DO NOT BACKTRACK UNTIL 0.. USELESS
+                if (incremental) // DO NOT BACKTRACK UNTIL 0.. USELESS
                     bt = (decisionLevel()<assumptions.size()) ? decisionLevel() : assumptions.size();
                 cancelUntil(bt);
                 return l_Undef;
@@ -1435,8 +1460,7 @@ lbool Solver::search(int nof_conflicts)
 
 lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless in core but useful for SimpSolver....
 {
-
-    if(incremental && certifiedUNSAT) {
+    if (incremental && certifiedUNSAT) {
         printf("Can not use incremental and certified unsat in the same time\n");
         exit(-1);
     }
@@ -1444,13 +1468,10 @@ lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless
     model.clear();
     conflict.clear();
     if (!ok) return l_False;
-    double curTime = cpuTime();
 
     solves++;
 
-
-
-    lbool   status        = l_Undef;
+    lbool status = l_Undef;
 
     // Search:
     int curr_restarts = 0;
@@ -1467,32 +1488,26 @@ lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless
         fclose(certifiedOutput);
     }
 
-
     if (status == l_True) {
         // Extend & copy model:
         model.growTo(nVars());
-        for (int i = 0; i < nVars(); i++) model[i] = value(i);
-    } else if (status == l_False && conflict.size() == 0)
+        for (int i = 0; i < nVars(); i++)
+            model[i] = value(i);
+    } else if (status == l_False && conflict.size() == 0) {
         ok = false;
-
-
+    }
 
     cancelUntil(0);
 
-
-    double finalTime = cpuTime();
-    if(status==l_True) {
+    if (status == l_True) {
         nbSatCalls++;
-        totalTime4Sat +=(finalTime-curTime);
-    }
-    if(status==l_False) {
-        nbUnsatCalls++;
-        totalTime4Unsat +=(finalTime-curTime);
     }
 
+    if (status == l_False) {
+        nbUnsatCalls++;
+    }
 
     return status;
-
 }
 
 //=================================================================================================

@@ -22,12 +22,13 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef Glucose_Vec_h
 #define Glucose_Vec_h
 
+
 #include <cassert>  // assert
+#include <climits>  // INT_MAX
 #include <cstring>  // memcpy
 
 #include <new>
 
-#include "mtl/IntTypes.h"
 #include "mtl/XAlloc.h"
 
 

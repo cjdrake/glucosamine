@@ -56,7 +56,6 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #include "mtl/Heap.h"
 #include "mtl/Alg.h"
-#include "utils/Options.h"
 #include "core/SolverTypes.h"
 #include "mtl/BoundedQueue.h"
 #include "mtl/Clone.h"
@@ -140,10 +139,6 @@ public:
     vec<lbool> model;   // If problem is satisfiable, this vector contains the model (if any).
     vec<Lit> conflict;  // If problem is unsatisfiable (possibly under assumptions),
                         // this vector represent the final conflict clause expressed in the assumptions.
-
-    // Mode of operation:
-    int verbEveryConflicts;
-    int showModel;
 
     // Constants For restarts
     double K;
@@ -291,7 +286,7 @@ protected:
     int nbclausesbeforereduce;            // To know when it is time to reduce clause database
 
     // Used for restart strategies
-    bqueue<unsigned int> trailQueue,lbdQueue; // Bounded queues for restarts.
+    bqueue<unsigned int> trailQueue, lbdQueue; // Bounded queues for restarts.
     float sumLBD; // used to compute the global average of LBD. Restarts...
     int sumAssumptions;
     CRef lastLearntClause;
@@ -319,7 +314,6 @@ protected:
     // Variables added for incremental mode
     int incremental; // Use incremental SAT Solver
     int nbVarsInitialFormula; // nb VAR in formula without assumptions (incremental SAT)
-    double totalTime4Sat,totalTime4Unsat;
     int nbSatCalls,nbUnsatCalls;
     vec<int> assumptionPositions,initialPositions;
 

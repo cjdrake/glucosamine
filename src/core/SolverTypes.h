@@ -55,7 +55,6 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <cassert>  // assert
 #include <cstdint>  // uint8_t, uint32_t
 
-#include "mtl/IntTypes.h"
 #include "mtl/Alg.h"
 #include "mtl/Vec.h"
 #include "mtl/Map.h"
