@@ -162,7 +162,6 @@ public:
 
     // Mode of operation:
     //
-    int       verbosity;
     int       verbEveryConflicts;
     int       showModel;
 

@@ -92,8 +92,7 @@ static DoubleOption opt_garbage_frac(_cat, "gc-frac", "The fraction of wasted me
 
 Solver::Solver()
     // Parameters (user settable):
-    : verbosity(0)
-    , showModel(0)
+    : showModel(0)
     , K(opt_K)
     , R(opt_R)
     , sizeLBDQueue(opt_size_lbd_queue)
@@ -171,8 +170,7 @@ Solver::Solver()
 //-------------------------------------------------------
 
 Solver::Solver(const Solver &s)
-    : verbosity(s.verbosity)
-    , showModel(s.showModel)
+    : showModel(s.showModel)
     , K(s.K)
     , R(s.R)
     , sizeLBDQueue(s.sizeLBDQueue)
@@ -1315,12 +1313,6 @@ lbool Solver::search(int nof_conflicts)
             if (conflicts % 5000 == 0 && var_decay < max_var_decay)
                 var_decay += 0.01;
 
-            if (verbosity >= 1 && conflicts % verbEveryConflicts == 0) {
-                printf("c | %8d   %7d    %5d | %7d %8d %8d | %5d %8d   %6d %8d | %6.3f %% |\n",
-                       (int) starts, (int) nbstopsrestarts, (int) (conflicts / starts),
-                       (int) dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int) clauses_literals,
-                       (int) nbReduceDB, nLearnts(), (int) nbDL2, (int) nbRemovedClauses, progressEstimate()*100);
-            }
             if (decisionLevel() == 0) {
                 return l_False;
 
@@ -1498,25 +1490,6 @@ lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless
 
 
     lbool   status        = l_Undef;
-    if(!incremental && verbosity>=1) {
-        printf("c ========================================[ MAGIC CONSTANTS ]==============================================\n");
-        printf("c | Constants are supposed to work well together :-)                                                      |\n");
-        printf("c | however, if you find better choices, please let us known...                                           |\n");
-        printf("c |-------------------------------------------------------------------------------------------------------|\n");
-        printf("c |                                |                                |                                     |\n");
-        printf("c | - Restarts:                    | - Reduce Clause DB:            | - Minimize Asserting:               |\n");
-        printf("c |   * LBD Queue    : %6d      |   * First     : %6d         |    * size < %3d                     |\n",lbdQueue.maxSize(),nbclausesbeforereduce,lbSizeMinimizingClause);
-        printf("c |   * Trail  Queue : %6d      |   * Inc       : %6d         |    * lbd  < %3d                     |\n",trailQueue.maxSize(),incReduceDB,lbLBDMinimizingClause);
-        printf("c |   * K            : %6.2f      |   * Special   : %6d         |                                     |\n",K,specialIncReduceDB);
-        printf("c |   * R            : %6.2f      |   * Protected :  (lbd)< %2d     |                                     |\n",R,lbLBDFrozenClause);
-        printf("c |                                |                                |                                     |\n");
-        printf("c ==================================[ Search Statistics (every %6d conflicts) ]=========================\n",verbEveryConflicts);
-        printf("c |                                                                                                       |\n");
-
-        printf("c |          RESTARTS           |          ORIGINAL         |              LEARNT              | Progress |\n");
-        printf("c |       NB   Blocked  Avg Cfc |    Vars  Clauses Literals |   Red   Learnts    LBD2  Removed |          |\n");
-        printf("c =========================================================================================================\n");
-    }
 
     // Search:
     int curr_restarts = 0;
@@ -1526,9 +1499,6 @@ lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless
         if (!withinBudget()) break;
         curr_restarts++;
     }
-
-    if (!incremental && verbosity >= 1)
-        printf("c =========================================================================================================\n");
 
     if (certifiedUNSAT) { // Want certified output
         if (status == l_False)
@@ -1641,9 +1611,6 @@ void Solver::garbageCollect()
     ClauseAllocator to(ca.size() - ca.wasted());
 
     relocAll(to);
-    if (verbosity >= 2)
-        printf("|  Garbage collection:   %12d bytes => %12d bytes             |\n",
-               ca.size() * ClauseAllocator::Unit_Size, to.size() * ClauseAllocator::Unit_Size);
     to.moveTo(ca);
 }
 
