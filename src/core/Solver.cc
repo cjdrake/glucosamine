@@ -942,7 +942,6 @@ CRef Solver::propagate()
 {
     CRef confl = CRef_Undef;
     int num_props = 0;
-    int previousqhead = qhead;
     watches.cleanAll();
     watchesBin.cleanAll();
     unaryWatches.cleanAll();
@@ -1512,25 +1511,6 @@ lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless
     return status;
 
 }
-
-
-
-
-
-//=================================================================================================
-// Writing CNF to DIMACS:
-//
-// FIXME: this needs to be rewritten completely.
-
-static Var mapVar(Var x, vec<Var>& map, Var& max)
-{
-    if (map.size() <= x || map[x] == -1) {
-        map.growTo(x + 1, -1);
-        map[x] = max++;
-    }
-    return map[x];
-}
-
 
 //=================================================================================================
 // Garbage Collection methods:
