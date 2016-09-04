@@ -9,7 +9,7 @@ target_link_libraries(a.out glucosamine gtest)
 
 # make test
 add_custom_target(
-    test
+    do_test
     COMMAND a.out
     DEPENDS a.out
 )
