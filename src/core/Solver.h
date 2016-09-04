@@ -58,13 +58,12 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "mtl/Alg.h"
 #include "core/SolverTypes.h"
 #include "mtl/BoundedQueue.h"
-#include "mtl/Clone.h"
 
 
 namespace Glucose {
 
 
-class Solver : public Clone
+class Solver
 {
     friend class SolverConfiguration;
 
@@ -74,10 +73,6 @@ public:
     Solver(const  Solver &s);
 
     virtual ~Solver();
-
-    virtual Clone* clone() const {
-        return  new Solver(*this);
-    }
 
     // Problem specification:
     virtual Var newVar(bool polarity = true, bool dvar = true); // Add a new variable with parameters specifying variable mode.
