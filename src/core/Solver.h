@@ -176,17 +176,6 @@ public:
     bool useUnaryWatched;            // Enable unary watched literals
     bool promoteOneWatchedClause;    // One watched clauses are promotted to two watched clauses if found empty
 
-    // Functions useful for multithread solving
-    // Useless in the sequential case
-    // Overide in ParallelSolver
-    virtual void parallelImportClauseDuringConflictAnalysis(Clause &c,CRef confl);
-    virtual bool parallelImportClauses(); // true if the empty clause was received
-    virtual void parallelImportUnaryClauses();
-    virtual void parallelExportUnaryClause(Lit p);
-    virtual void parallelExportClauseDuringSearch(Clause &c);
-    virtual bool parallelJobIsFinished();
-    virtual bool panicModeIsEnabled();
-
     // Statistics: (read-only member variable)
     uint64_t nbPromoted;          // Number of clauses from unary to binary watch scheme
     uint64_t originalClausesSeen; // Number of original clauses seen

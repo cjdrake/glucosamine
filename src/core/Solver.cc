@@ -708,7 +708,6 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
         }
 
         if (c.learnt()) {
-            parallelImportClauseDuringConflictAnalysis(c,confl);
             claBumpActivity(c);
         } else { // original clause
             if (!c.getSeen()) {
@@ -1313,20 +1312,9 @@ lbool Solver::search(int nof_conflicts)
     bool blocked = false;
     starts++;
     for (;;) {
-        if (decisionLevel() == 0) { // We import clauses FIXME: ensure that we will import clauses enventually (restart after some point)
-            parallelImportUnaryClauses();
-
-            if (parallelImportClauses())
-                return l_False;
-
-        }
         CRef confl = propagate();
 
         if (confl != CRef_Undef) {
-            if (parallelJobIsFinished())
-                return l_Undef;
-
-
             sumDecisionLevels += decisionLevel();
             // CONFLICT
             conflicts++;
@@ -1373,7 +1361,6 @@ lbool Solver::search(int nof_conflicts)
             if (learnt_clause.size() == 1) {
                 uncheckedEnqueue(learnt_clause[0]);
                 nbUn++;
-                parallelExportUnaryClause(learnt_clause[0]);
             } else {
                 CRef cr = ca.alloc(learnt_clause, true);
                 ca[cr].setLBD(nblevels);
@@ -1384,7 +1371,6 @@ lbool Solver::search(int nof_conflicts)
                 learnts.push(cr);
                 attachClause(cr);
                 lastLearntClause = cr; // Use in multithread (to hard to put inside ParallelSolver)
-                parallelExportClauseDuringSearch(ca[cr]);
                 claBumpActivity(ca[cr]);
                 uncheckedEnqueue(learnt_clause[0], cr);
 
@@ -1416,8 +1402,7 @@ lbool Solver::search(int nof_conflicts)
                 if (learnts.size() > 0) {
                     curRestart = (conflicts / nbclausesbeforereduce) + 1;
                     reduceDB();
-                    if (!panicModeIsEnabled())
-                        nbclausesbeforereduce += incReduceDB;
+                    nbclausesbeforereduce += incReduceDB;
                 }
             }
 
@@ -1569,42 +1554,4 @@ void Solver::garbageCollect()
 
     relocAll(to);
     to.moveTo(ca);
-}
-
-//--------------------------------------------------------------
-// Functions related to MultiThread.
-// Useless in case of single core solver (aka original glucose)
-// Keep them empty if you just use core solver
-//--------------------------------------------------------------
-
-bool Solver::panicModeIsEnabled()
-{
-    return false;
-}
-
-void Solver::parallelImportUnaryClauses()
-{
-}
-
-bool Solver::parallelImportClauses()
-{
-    return false;
-}
-
-
-void Solver::parallelExportUnaryClause(Lit p)
-{
-}
-void Solver::parallelExportClauseDuringSearch(Clause &c)
-{
-}
-
-bool Solver::parallelJobIsFinished()
-{
-    // Parallel: another job has finished let's quit
-    return false;
-}
-
-void Solver::parallelImportClauseDuringConflictAnalysis(Clause &c,CRef confl)
-{
 }
