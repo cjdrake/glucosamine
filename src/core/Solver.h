@@ -51,13 +51,27 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #define Glucose_Solver_h
 
 
-#include <cstdlib>  // FILE
-#include <cstdio>  // fprintf, printf
+#include <cassert>
+#include <cerrno>
+#include <climits>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
 
-#include "mtl/Heap.h"
+#include <new>
+
+#include "mtl/XAlloc.h"
+#include "mtl/Alloc.h"
+
+#include "mtl/Vec.h"
+
 #include "mtl/Alg.h"
-#include "core/SolverTypes.h"
 #include "mtl/BoundedQueue.h"
+#include "mtl/Heap.h"
+#include "mtl/Map.h"
+#include "mtl/Sort.h"
+
+#include "core/SolverTypes.h"
 
 
 namespace Glucose {
@@ -164,14 +178,6 @@ public:
 
     // Constant for Memory managment
     double garbage_frac;  // The fraction of wasted memory allowed before a garbage collection is triggered.
-
-    // Certified UNSAT (Thanks to Marijn Heule)
-    FILE* certifiedOutput;
-    bool certifiedUNSAT;
-
-    // Panic mode.
-    // Save memory
-    uint32_t panicModeLastRemoved, panicModeLastRemovedShared;
 
     bool useUnaryWatched;            // Enable unary watched literals
     bool promoteOneWatchedClause;    // One watched clauses are promotted to two watched clauses if found empty

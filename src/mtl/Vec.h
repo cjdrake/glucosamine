@@ -23,15 +23,6 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #define Glucose_Vec_h
 
 
-#include <cassert>  // assert
-#include <climits>  // INT_MAX
-#include <cstring>  // memcpy
-
-#include <new>
-
-#include "mtl/XAlloc.h"
-
-
 namespace Glucose {
 
 //=================================================================================================

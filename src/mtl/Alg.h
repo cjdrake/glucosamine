@@ -21,9 +21,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef Glucose_Alg_h
 #define Glucose_Alg_h
 
-#include "mtl/Vec.h"
 
 namespace Glucose {
+
 
 //=================================================================================================
 // Useful functions on vector-like types:
@@ -81,7 +81,8 @@ static inline void append(const vec<T>& from, vec<T>& to)
     copy(from, to, true);
 }
 
-//=================================================================================================
-}
+
+}  // namespace Glucose
+
 
 #endif

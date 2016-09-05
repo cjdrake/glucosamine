@@ -22,10 +22,6 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #define Glucose_XAlloc_h
 
 
-#include <cerrno>  // ENOMEM
-#include <cstdlib>  // NULL, realloc
-
-
 namespace Glucose {
 
 

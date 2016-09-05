@@ -48,7 +48,6 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
  **************************************************************************************************/
 
 
-#include "mtl/Sort.h"
 #include "core/Solver.h"
 
 
@@ -143,9 +142,6 @@ Solver::Solver()
     , rnd_pol(false)
     , rnd_init_act(opt_rnd_init_act)
     , garbage_frac(opt_garbage_frac)
-    , certifiedOutput(NULL)
-    , certifiedUNSAT(false) // Not in the first parallel version
-    , panicModeLastRemoved(0), panicModeLastRemovedShared(0)
     , useUnaryWatched(false)
     , promoteOneWatchedClause(true)
 
@@ -217,9 +213,6 @@ Solver::Solver(const Solver &s)
     , rnd_pol(s.rnd_pol)
     , rnd_init_act(s.rnd_init_act)
     , garbage_frac(s.garbage_frac)
-    , certifiedOutput(NULL)
-    , certifiedUNSAT(false) // Not in the first parallel version
-    , panicModeLastRemoved(s.panicModeLastRemoved), panicModeLastRemovedShared(s.panicModeLastRemovedShared)
     , useUnaryWatched(s.useUnaryWatched)
     , promoteOneWatchedClause(s.promoteOneWatchedClause)
 
@@ -350,7 +343,6 @@ Var Solver::newVar(bool sign, bool dvar)
 
 bool Solver::addClause_(vec<Lit>& ps)
 {
-
     assert(decisionLevel() == 0);
     if (!ok) return false;
 
@@ -361,14 +353,7 @@ bool Solver::addClause_(vec<Lit>& ps)
     oc.clear();
 
     Lit p;
-    int i, j, flag = 0;
-    if (certifiedUNSAT) {
-        for (i = j = 0, p = lit_Undef; i < ps.size(); i++) {
-            oc.push(ps[i]);
-            if (value(ps[i]) == l_True || ps[i] == ~p || value(ps[i]) == l_False)
-                flag = 1;
-        }
-    }
+    int i, j;
 
     for (i = j = 0, p = lit_Undef; i < ps.size(); i++)
         if (value(ps[i]) == l_True || ps[i] == ~p)
@@ -376,18 +361,6 @@ bool Solver::addClause_(vec<Lit>& ps)
         else if (value(ps[i]) != l_False && ps[i] != p)
             ps[j++] = p = ps[i];
     ps.shrink(i - j);
-
-    if (flag && (certifiedUNSAT)) {
-        for (i = j = 0, p = lit_Undef; i < ps.size(); i++)
-            fprintf(certifiedOutput, "%i ", (var(ps[i]) + 1) * (-2 * sign(ps[i]) + 1));
-        fprintf(certifiedOutput, "0\n");
-
-        fprintf(certifiedOutput, "d ");
-        for (i = j = 0, p = lit_Undef; i < oc.size(); i++)
-            fprintf(certifiedOutput, "%i ", (var(oc[i]) + 1) * (-2 * sign(oc[i]) + 1));
-        fprintf(certifiedOutput, "0\n");
-    }
-
 
     if (ps.size() == 0)
         return ok = false;
@@ -474,13 +447,6 @@ void Solver::removeClause(CRef cr, bool inPurgatory)
 {
 
     Clause& c = ca[cr];
-
-    if (certifiedUNSAT) {
-        fprintf(certifiedOutput, "d ");
-        for (int i = 0; i < c.size(); i++)
-            fprintf(certifiedOutput, "%i ", (var(c[i]) + 1) * (-2 * sign(c[i]) + 1));
-        fprintf(certifiedOutput, "0\n");
-    }
 
     if (inPurgatory)
         detachClausePurgatory(cr);
@@ -1140,7 +1106,6 @@ CRef Solver::propagateUnaryWatches(Lit p)
             *j++ = *i++;
 
         // We can add it now to the set of clauses when backtracking
-        //printf("*");
         if (promoteOneWatchedClause) {
             nbPromoted++;
             // Let's find the two biggest decision levels in the clause s.t. it will correctly be propagated when we'll backtrack
@@ -1350,14 +1315,6 @@ lbool Solver::search(int nof_conflicts)
 
             cancelUntil(backtrack_level);
 
-            if (certifiedUNSAT) {
-                for (int i = 0; i < learnt_clause.size(); i++)
-                    fprintf(certifiedOutput, "%i ", (var(learnt_clause[i]) + 1) *
-                            (-2 * sign(learnt_clause[i]) + 1));
-                fprintf(certifiedOutput, "0\n");
-            }
-
-
             if (learnt_clause.size() == 1) {
                 uncheckedEnqueue(learnt_clause[0]);
                 nbUn++;
@@ -1428,7 +1385,6 @@ lbool Solver::search(int nof_conflicts)
                 decisions++;
                 next = pickBranchLit();
                 if (next == lit_Undef) {
-                    //printf("c last restart ## conflicts  :  %d %d \n", conflictC, decisionLevel());
                     // Model found:
                     return l_True;
                 }
@@ -1445,11 +1401,6 @@ lbool Solver::search(int nof_conflicts)
 
 lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless in core but useful for SimpSolver....
 {
-    if (incremental && certifiedUNSAT) {
-        printf("Can not use incremental and certified unsat in the same time\n");
-        exit(-1);
-    }
-
     model.clear();
     conflict.clear();
     if (!ok) return l_False;
@@ -1465,12 +1416,6 @@ lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless
 
         if (!withinBudget()) break;
         curr_restarts++;
-    }
-
-    if (certifiedUNSAT) { // Want certified output
-        if (status == l_False)
-            fprintf(certifiedOutput, "0\n");
-        fclose(certifiedOutput);
     }
 
     if (status == l_True) {
@@ -1509,7 +1454,6 @@ void Solver::relocAll(ClauseAllocator& to)
     for (int v = 0; v < nVars(); v++)
         for (int s = 0; s < 2; s++) {
             Lit p = mkLit(v, s);
-            // printf(" >>> RELOCING: %s%d\n", sign(p)?"-":"", var(p)+1);
             vec<Watcher>& ws = watches[p];
             for (int j = 0; j < ws.size(); j++)
                 ca.reloc(ws[j].cref, to);

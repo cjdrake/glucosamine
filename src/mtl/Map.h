@@ -21,10 +21,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef Glucose_Map_h
 #define Glucose_Map_h
 
-#include "mtl/Vec.h"
-
 
 namespace Glucose {
+
 
 //=================================================================================================
 // Default hash/equals functions

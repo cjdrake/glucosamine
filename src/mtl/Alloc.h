@@ -21,10 +21,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef Glucose_Alloc_h
 #define Glucose_Alloc_h
 
-#include "mtl/XAlloc.h"
-#include "mtl/Vec.h"
 
 namespace Glucose {
+
 
 //=================================================================================================
 // Simple Region-based memory allocator:
@@ -158,7 +157,7 @@ RegionAllocator<T>::alloc(int size)
 }
 
 
-//=================================================================================================
-}
+}  // namespace Glucose
+
 
 #endif

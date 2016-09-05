@@ -52,15 +52,6 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #define Glucose_SolverTypes_h
 
 
-#include <cassert>  // assert
-#include <cstdint>  // uint8_t, uint32_t
-
-#include "mtl/Alg.h"
-#include "mtl/Vec.h"
-#include "mtl/Map.h"
-#include "mtl/Alloc.h"
-
-
 namespace Glucose {
 
 //=================================================================================================

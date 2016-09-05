@@ -21,13 +21,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef Glucose_Sort_h
 #define Glucose_Sort_h
 
-#include "mtl/Vec.h"
-
-//=================================================================================================
-// Some sorting algorithms for vec's
-
 
 namespace Glucose {
+
 
 template<class T>
 struct LessThan_default {
@@ -108,7 +104,7 @@ template <class T> void sort(vec<T>& v)
 }
 
 
-//=================================================================================================
-}
+}  // namespace Glucose
+
 
 #endif
