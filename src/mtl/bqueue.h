@@ -48,11 +48,12 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
  **************************************************************************************************/
 
 
-#ifndef BoundedQueue_h
-#define BoundedQueue_h
+#ifndef GLUCOSAMINE_MTL_BQUEUE_H_
+#define GLUCOSAMINE_MTL_BQUEUE_H_
 
 
 namespace Glucose {
+
 
 template <class T>
 class bqueue {
@@ -181,4 +182,4 @@ public:
 }  // namespace Glucose
 
 
-#endif
+#endif  // GLUCOSAMINE_MTL_BQUEUE_H_

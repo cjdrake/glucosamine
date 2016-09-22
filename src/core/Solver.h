@@ -60,16 +60,16 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #include <new>
 
-#include "mtl/XAlloc.h"
-#include "mtl/Alloc.h"
+#include "mtl/xalloc.h"
+#include "mtl/alloc.h"
 
-#include "mtl/Vec.h"
+#include "mtl/vec.h"
 
-#include "mtl/Alg.h"
-#include "mtl/BoundedQueue.h"
-#include "mtl/Heap.h"
-#include "mtl/Map.h"
-#include "mtl/Sort.h"
+#include "mtl/alg.h"
+#include "mtl/bqueue.h"
+#include "mtl/heap.h"
+#include "mtl/map.h"
+#include "mtl/sort.h"
 
 #include "core/SolverTypes.h"
 

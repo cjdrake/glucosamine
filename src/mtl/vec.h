@@ -19,8 +19,8 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 **************************************************************************************************/
 
 
-#ifndef Glucose_Vec_h
-#define Glucose_Vec_h
+#ifndef GLUCOSAMINE_MTL_VEC_H_
+#define GLUCOSAMINE_MTL_VEC_H_
 
 
 namespace Glucose {
@@ -202,4 +202,4 @@ void vec<T>::clear(bool dealloc)
 }  // namespace Glucose
 
 
-#endif  // Glucose_Vec_h
+#endif  // GLUCOSAMINE_MTL_VEC_H_

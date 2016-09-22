@@ -18,8 +18,8 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 **************************************************************************************************/
 
 
-#ifndef Glucose_Map_h
-#define Glucose_Map_h
+#ifndef GLUCOSAMINE_MTL_MAP_H_
+#define GLUCOSAMINE_MTL_MAP_H_
 
 
 namespace Glucose {
@@ -246,4 +246,4 @@ public:
 }  // namespace Glucose
 
 
-#endif  // Glucose_Map_h
+#endif  // GLUCOSAMINE_MTL_MAP_H_

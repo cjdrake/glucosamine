@@ -18,8 +18,9 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **************************************************************************************************/
 
-#ifndef Glucose_Heap_h
-#define Glucose_Heap_h
+
+#ifndef GLUCOSAMINE_MTL_HEAP_H_
+#define GLUCOSAMINE_MTL_HEAP_H_
 
 
 namespace Glucose {
@@ -167,4 +168,4 @@ public:
 }  // namespace Glucose
 
 
-#endif
+#endif  // GLUCOSAMINE_MTL_HEAP_H_

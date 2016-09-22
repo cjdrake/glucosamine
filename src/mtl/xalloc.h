@@ -18,8 +18,8 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 **************************************************************************************************/
 
 
-#ifndef Glucose_XAlloc_h
-#define Glucose_XAlloc_h
+#ifndef GLUCOSAMINE_MTL_XALLOC_H_
+#define GLUCOSAMINE_MTL_XALLOC_H_
 
 
 namespace Glucose {
@@ -45,4 +45,4 @@ xrealloc(void * ptr, size_t size)
 }  // namespace Glucose
 
 
-#endif  // Glucose_XAlloc_h
+#endif  // GLUCOSAMINE_MTL_XALLOC_H_

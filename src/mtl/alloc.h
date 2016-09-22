@@ -18,8 +18,8 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 **************************************************************************************************/
 
 
-#ifndef Glucose_Alloc_h
-#define Glucose_Alloc_h
+#ifndef GLUCOSAMINE_MTL_ALLOC_H_
+#define GLUCOSAMINE_MTL_ALLOC_H_
 
 
 namespace Glucose {
@@ -160,4 +160,4 @@ RegionAllocator<T>::alloc(int size)
 }  // namespace Glucose
 
 
-#endif
+#endif  // GLUCOSAMINE_MTL_ALLOC_H_

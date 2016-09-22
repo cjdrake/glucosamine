@@ -18,8 +18,9 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **************************************************************************************************/
 
-#ifndef Glucose_Sort_h
-#define Glucose_Sort_h
+
+#ifndef GLUCOSAMINE_MTL_SORT_H_
+#define GLUCOSAMINE_MTL_SORT_H_
 
 
 namespace Glucose {
@@ -107,4 +108,4 @@ template <class T> void sort(vec<T>& v)
 }  // namespace Glucose
 
 
-#endif
+#endif  // GLUCOSAMINE_MTL_SORT_H_

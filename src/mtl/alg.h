@@ -18,8 +18,9 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **************************************************************************************************/
 
-#ifndef Glucose_Alg_h
-#define Glucose_Alg_h
+
+#ifndef GLUCOSAMINE_MTL_ALG_H_
+#define GLUCOSAMINE_MTL_ALG_H_
 
 
 namespace Glucose {
@@ -39,4 +40,4 @@ static inline void remove(V& ts, const T& t)
 }  // namespace Glucose
 
 
-#endif
+#endif  // GLUCOSAMINE_MTL_ALG_H_
