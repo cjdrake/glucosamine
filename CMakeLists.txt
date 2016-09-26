@@ -4,7 +4,7 @@ project(glucosamine)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-file(GLOB_RECURSE srcs "src/*.h" "src/core/Solver.cc")
+file(GLOB_RECURSE srcs "src/*.h" "src/*.cc")
 
 add_library(glucosamine ${srcs})
 target_compile_options(glucosamine PUBLIC -std=c++11 -Wall)
