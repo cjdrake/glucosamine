@@ -439,7 +439,7 @@ Solver::claBumpActivity (Clause& c)
 {
     if ( (c.activity() += cla_inc) > 1e20 ) {
         // Rescale:
-        for (int i = 0; i < learnts.size(); i++)
+        for (size_t i = 0; i < learnts.size(); ++i)
             ca[learnts[i]].activity() *= 1e-20;
         cla_inc *= 1e-20;
     }

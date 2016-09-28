@@ -353,7 +353,7 @@ bool Solver::addClause_(vec<Lit>& ps)
     oc.clear();
 
     Lit p;
-    int i, j;
+    size_t i, j;
 
     for (i = j = 0, p = lit_Undef; i < ps.size(); i++)
         if (value(ps[i]) == l_True || ps[i] == ~p)
@@ -482,7 +482,7 @@ inline unsigned int Solver::computeLBD(const vec<Lit> & lits,int end)
     if (incremental) { // ----------------- INCREMENTAL MODE
         if (end==-1) end = lits.size();
         int nbDone = 0;
-        for (int i=0; i<lits.size(); i++) {
+        for (size_t i=0; i < lits.size(); i++) {
             if (nbDone>=end) break;
             if (isSelector(var(lits[i]))) continue;
             nbDone++;
@@ -493,7 +493,7 @@ inline unsigned int Solver::computeLBD(const vec<Lit> & lits,int end)
             }
         }
     } else { // -------- DEFAULT MODE. NOT A LOT OF DIFFERENCES... BUT EASIER TO READ
-        for (int i=0; i<lits.size(); i++) {
+        for (size_t i = 0; i < lits.size(); ++i) {
             int l = level(var(lits[i]));
             if (permDiff[l] != MYFLAG) {
                 permDiff[l] = MYFLAG;
@@ -555,13 +555,13 @@ void Solver::minimisationWithBinaryResolution(vec<Lit> &out_learnt)
     if (lbd <= lbLBDMinimizingClause) {
         MYFLAG++;
 
-        for (int i = 1; i < out_learnt.size(); i++) {
+        for (size_t i = 1; i < out_learnt.size(); i++) {
             permDiff[var(out_learnt[i])] = MYFLAG;
         }
 
         vec<Watcher>& wbin = watchesBin[p];
         int nb = 0;
-        for (int k = 0; k < wbin.size(); k++) {
+        for (size_t k = 0; k < wbin.size(); ++k) {
             Lit imp = wbin[k].blocker;
             if (permDiff[var(imp)] == MYFLAG && value(imp) == l_True) {
                 nb++;
@@ -571,7 +571,7 @@ void Solver::minimisationWithBinaryResolution(vec<Lit> &out_learnt)
         int l = out_learnt.size() - 1;
         if (nb > 0) {
             nbReducedClauses++;
-            for (int i = 1; i < out_learnt.size() - nb; i++) {
+            for (size_t i = 1; i < out_learnt.size() - nb; ++i) {
                 if (permDiff[var(out_learnt[i])] != MYFLAG) {
                     Lit p = out_learnt[l];
                     out_learnt[l] = out_learnt[i];
@@ -732,9 +732,9 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
 
     // Simplify conflict clause:
     //
-    int i, j;
+    size_t i, j;
 
-    for (int i = 0; i < selectors.size(); i++)
+    for (size_t i = 0; i < selectors.size(); i++)
         out_learnt.push_back(selectors[i]);
 
     out_learnt.copyTo(analyze_toclear);
@@ -787,7 +787,7 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
     else {
         int max_i = 1;
         // Find the first literal assigned at the next-highest level:
-        for (int i = 2; i < out_learnt.size(); i++)
+        for (size_t i = 2; i < out_learnt.size(); i++)
             if (level(var(out_learnt[i])) > level(var(out_learnt[max_i])))
                 max_i = i;
         // Swap-in this literal at index 1:
@@ -798,9 +798,11 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
     }
     if (incremental) {
         szWithoutSelectors = 0;
-        for (int i=0; i<out_learnt.size(); i++) {
-            if (!isSelector(var((out_learnt[i])))) szWithoutSelectors++;
-            else if (i>0) break;
+        for (size_t i = 0; i < out_learnt.size(); ++i) {
+            if (!isSelector(var((out_learnt[i]))))
+                szWithoutSelectors++;
+            else if (i > 0)
+                break;
         }
     } else
         szWithoutSelectors = out_learnt.size();
@@ -810,7 +812,7 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
 
     // UPDATEVARACTIVITY trick (see competition'09 companion paper)
     if (lastDecisionLevel.size() > 0) {
-        for (int i = 0; i < lastDecisionLevel.size(); i++) {
+        for (size_t i = 0; i < lastDecisionLevel.size(); ++i) {
             if (ca[reason(var(lastDecisionLevel[i]))].lbd() < lbd)
                 varBumpActivity(var(lastDecisionLevel[i]));
         }
@@ -819,8 +821,8 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
 
 
 
-    for (int j = 0; j < analyze_toclear.size(); j++) seen[var(analyze_toclear[j])] = 0; // ('seen[]' is now cleared)
-    for (int j = 0; j < selectors.size(); j++) seen[var(selectors[j])] = 0;
+    for (size_t j = 0; j < analyze_toclear.size(); ++j) seen[var(analyze_toclear[j])] = 0; // ('seen[]' is now cleared)
+    for (size_t j = 0; j < selectors.size(); ++j) seen[var(selectors[j])] = 0;
 }
 
 
@@ -851,7 +853,7 @@ bool Solver::litRedundant(Lit p, uint32_t abstract_levels)
                         analyze_stack.push_back(p);
                         analyze_toclear.push_back(p);
                     } else {
-                        for (int j = top; j < analyze_toclear.size(); j++)
+                        for (size_t j = top; j < analyze_toclear.size(); j++)
                             seen[var(analyze_toclear[j])] = 0;
                         analyze_toclear.shrink(analyze_toclear.size() - top);
                         return false;
@@ -943,7 +945,7 @@ CRef Solver::propagate()
         // First, Propagate binary clauses
         vec<Watcher>& wbin = watchesBin[p];
 
-        for (int k = 0; k < wbin.size(); k++) {
+        for (size_t k = 0; k < wbin.size(); k++) {
 
             Lit imp = wbin[k].blocker;
 
@@ -988,7 +990,7 @@ CRef Solver::propagate()
                 for (int k = 2; k < c.size(); k++) {
 
                     if (value(c[k]) != l_False) {
-                        if (decisionLevel()>assumptions.size()) {
+                        if (decisionLevel() > assumptions.size()) {
                             choosenPos = k;
                             break;
                         } else {
@@ -1152,7 +1154,7 @@ static const int RATIOREMOVECLAUSES = 2;
 void Solver::reduceDB()
 {
 
-    int     i, j;
+    size_t i, j;
     nbReduceDB++;
     sort(learnts, reduceDB_lt(ca));
 
@@ -1186,10 +1188,9 @@ void Solver::reduceDB()
 void Solver::removeSatisfied(vec<CRef>& cs)
 {
 
-    int i, j;
+    size_t i, j;
     for (i = j = 0; i < cs.size(); i++) {
         Clause& c = ca[cs[i]];
-
 
         if (satisfied(c))
             if (c.getOneWatched())
@@ -1343,7 +1344,9 @@ lbool Solver::search(int nof_conflicts)
                 lbdQueue.fastclear();
                 int bt = 0;
                 if (incremental) // DO NOT BACKTRACK UNTIL 0.. USELESS
-                    bt = (decisionLevel()<assumptions.size()) ? decisionLevel() : assumptions.size();
+                    bt = (decisionLevel() < assumptions.size())
+                       ? decisionLevel()
+                       : assumptions.size();
                 cancelUntil(bt);
                 return l_Undef;
             }
@@ -1455,19 +1458,18 @@ void Solver::relocAll(ClauseAllocator& to)
         for (int s = 0; s < 2; s++) {
             Lit p = mkLit(v, s);
             vec<Watcher>& ws = watches[p];
-            for (int j = 0; j < ws.size(); j++)
+            for (size_t j = 0; j < ws.size(); ++j)
                 ca.reloc(ws[j].cref, to);
             vec<Watcher>& ws2 = watchesBin[p];
-            for (int j = 0; j < ws2.size(); j++)
+            for (size_t j = 0; j < ws2.size(); ++j)
                 ca.reloc(ws2[j].cref, to);
             vec<Watcher>& ws3 = unaryWatches[p];
-            for (int j = 0; j < ws3.size(); j++)
+            for (size_t j = 0; j < ws3.size(); ++j)
                 ca.reloc(ws3[j].cref, to);
         }
 
     // All reasons:
-    //
-    for (int i = 0; i < trail.size(); i++) {
+    for (size_t i = 0; i < trail.size(); ++i) {
         Var v = var(trail[i]);
 
         if (reason(v) != CRef_Undef && (ca[reason(v)].reloced() || locked(ca[reason(v)])))
@@ -1475,16 +1477,14 @@ void Solver::relocAll(ClauseAllocator& to)
     }
 
     // All learnt:
-    //
-    for (int i = 0; i < learnts.size(); i++)
+    for (size_t i = 0; i < learnts.size(); ++i)
         ca.reloc(learnts[i], to);
 
     // All original:
-    //
-    for (int i = 0; i < clauses.size(); i++)
+    for (size_t i = 0; i < clauses.size(); ++i)
         ca.reloc(clauses[i], to);
 
-    for (int i = 0; i < unaryWatchedClauses.size(); i++)
+    for (size_t i = 0; i < unaryWatchedClauses.size(); ++i)
         ca.reloc(unaryWatchedClauses[i], to);
 }
 
