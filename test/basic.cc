@@ -40,16 +40,16 @@ TEST_F(BasicTest, Majority)
     vec<Lit> clause [3];
 
     // x0 + x1
-    clause[0].push(mkLit(0));
-    clause[0].push(mkLit(1));
+    clause[0].push_back(mkLit(0));
+    clause[0].push_back(mkLit(1));
 
     // x0 + x2
-    clause[1].push(mkLit(0));
-    clause[1].push(mkLit(2));
+    clause[1].push_back(mkLit(0));
+    clause[1].push_back(mkLit(2));
 
     // x1 + x2
-    clause[2].push(mkLit(1));
-    clause[2].push(mkLit(2));
+    clause[2].push_back(mkLit(1));
+    clause[2].push_back(mkLit(2));
 
     for (size_t i = 0; i < 3; ++i)
         solver.addClause(clause[i]);

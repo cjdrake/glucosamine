@@ -483,7 +483,7 @@ inline bool
 Solver::addClause(Lit p)
 {
     add_tmp.clear();
-    add_tmp.push(p);
+    add_tmp.push_back(p);
     return addClause_(add_tmp);
 }
 
@@ -491,8 +491,8 @@ inline bool
 Solver::addClause(Lit p, Lit q)
 {
     add_tmp.clear();
-    add_tmp.push(p);
-    add_tmp.push(q);
+    add_tmp.push_back(p);
+    add_tmp.push_back(q);
     return addClause_(add_tmp);
 }
 
@@ -500,9 +500,9 @@ inline bool
 Solver::addClause(Lit p, Lit q, Lit r)
 {
     add_tmp.clear();
-    add_tmp.push(p);
-    add_tmp.push(q);
-    add_tmp.push(r);
+    add_tmp.push_back(p);
+    add_tmp.push_back(q);
+    add_tmp.push_back(r);
     return addClause_(add_tmp);
 }
 
@@ -520,7 +520,7 @@ Solver::locked(const Clause& c) const
 inline void
 Solver::newDecisionLevel()
 {
-    trail_lim.push(trail.size());
+    trail_lim.push_back(trail.size());
 }
 
 inline int
@@ -586,7 +586,7 @@ Solver::nVars() const
 inline int
 Solver::nFreeVars() const
 {
-    return (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]);
+    return (int)dec_vars - (trail_lim.empty() ? trail.size() : trail_lim[0]);
 }
 
 inline void
@@ -658,7 +658,7 @@ Solver::solve(Lit p)
 {
     budgetOff();
     assumptions.clear();
-    assumptions.push(p);
+    assumptions.push_back(p);
     return solve_() == l_True;
 }
 
@@ -667,8 +667,8 @@ Solver::solve(Lit p, Lit q)
 {
     budgetOff();
     assumptions.clear();
-    assumptions.push(p);
-    assumptions.push(q);
+    assumptions.push_back(p);
+    assumptions.push_back(q);
     return solve_() == l_True;
 }
 
@@ -677,9 +677,9 @@ Solver::solve(Lit p, Lit q, Lit r)
 {
     budgetOff();
     assumptions.clear();
-    assumptions.push(p);
-    assumptions.push(q);
-    assumptions.push(r);
+    assumptions.push_back(p);
+    assumptions.push_back(q);
+    assumptions.push_back(r);
     return solve_() == l_True;
 }
 

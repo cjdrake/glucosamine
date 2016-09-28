@@ -16025,7 +16025,7 @@ TEST_F(AgileBenchmark, 10662)
     for (int i = 0; i < 15995; ++i) {
         vec<Lit> clause;
         while ((lit = clauses[index++]) != 0) {
-            clause.push(lit < 0 ? ~mkLit(-lit-1) : mkLit(lit-1));
+            clause.push_back(lit < 0 ? ~mkLit(-lit-1) : mkLit(lit-1));
         }
         solver.addClause(clause);
     }

@@ -274,9 +274,12 @@ public:
         }
         header.size -= i;
     }
-    void         pop         ()              {
+
+    void pop_back()
+    {
         shrink(1);
     }
+
     bool         learnt      ()      const   {
         return header.learnt;
     }
@@ -507,7 +510,7 @@ public:
     void  smudge    (const Idx& idx) {
         if (dirty[toInt(idx)] == 0) {
             dirty[toInt(idx)] = 1;
-            dirties.push(idx);
+            dirties.push_back(idx);
         }
     }
 

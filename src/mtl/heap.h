@@ -126,17 +126,17 @@ public:
         assert(!inHeap(n));
 
         indices[n] = heap.size();
-        heap.push(n);
+        heap.push_back(n);
         percolateUp(indices[n]);
     }
 
 
     int  removeMin() {
         int x            = heap[0];
-        heap[0]          = heap.last();
+        heap[0]          = heap.back();
         indices[heap[0]] = 0;
         indices[x]       = -1;
-        heap.pop();
+        heap.pop_back();
         if (heap.size() > 1) percolateDown(0);
         return x;
     }
@@ -150,7 +150,7 @@ public:
 
         for (int i = 0; i < ns.size(); i++) {
             indices[ns[i]] = i;
-            heap.push(ns[i]);
+            heap.push_back(ns[i]);
         }
 
         for (int i = heap.size() / 2 - 1; i >= 0; i--)

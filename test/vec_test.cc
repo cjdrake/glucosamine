@@ -32,13 +32,13 @@ TEST_F(VecTest, Basic)
     EXPECT_EQ(v.size(), 0);
 
     for (int i = 0; i < 1024; ++i) {
-        v.push(i);
+        v.push_back(i);
     }
 
     EXPECT_EQ(v.size(), 1024);
 
     for (int i = 0; i < 1024; ++i) {
-        v.pop();
+        v.pop_back();
     }
 
     EXPECT_EQ(v.size(), 0);

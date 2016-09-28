@@ -63,10 +63,39 @@ public:
     vec(vec<T> & other) = delete;
     vec(vec<T> && other) = delete;
 
-    // Pointer to first element:
     operator T* ()
     {
         return data;
+    }
+
+    T &
+    operator [] (size_t pos)
+    {
+        return data[pos];
+    }
+
+    T const &
+    operator [] (size_t pos) const
+    {
+        return data[pos];
+    }
+
+    T &
+    back()
+    {
+        return data[size_-1];
+    }
+
+    T const &
+    back() const
+    {
+        return data[size_-1];
+    }
+
+    bool
+    empty() const
+    {
+        return size_ == 0;
     }
 
     size_t
@@ -75,6 +104,15 @@ public:
         return size_;
     }
 
+    void reserve(size_t new_cap);
+
+    size_t
+    capacity() const
+    {
+        return cap_;
+    }
+
+    // NOTE: std::vector only supports shrink_to_fit
     void
     shrink(size_t n)
     {
@@ -85,47 +123,7 @@ public:
         }
     }
 
-    void
-    shrink_(size_t n)
-    {
-        assert(n <= size_);
-        size_ -= n;
-    }
-
-    size_t
-    capacity() const
-    {
-        return cap_;
-    }
-
-    void capacity(size_t new_cap);
-
-    void
-    growTo(size_t size)
-    {
-        if (size_ >= size) {
-            return;
-        }
-        capacity(size);
-        for (size_t i = size_; i < size; ++i) {
-            new (&data[i]) T();
-        }
-        size_ = size;
-    }
-
-    void
-    growTo(size_t size, T const & pad)
-    {
-        if (size_ >= size) {
-            return;
-        }
-        capacity(size);
-        for (size_t i = size_; i < size; ++i) {
-            data[i] = pad;
-        }
-        size_ = size;
-    }
-
+    // NOTE: std::vector does not have dealloc parameter
     void
     clear(bool dealloc = false)
     {
@@ -142,67 +140,69 @@ public:
         }
     }
 
+    // NOTE: it seems possible that overflow can happen in the 'size_+1' expression of 'push_back()',
+    // but in fact it can not since it requires that 'cap_' is equal to SIZE_MAX.
+    // This in turn can not happen given the way capacities are calculated (below).
+    // Essentially, all capacities are even, but SIZE_MAX is odd.
+
     void
-    push()
+    push_back()
     {
         if (size_ == cap_) {
-            capacity(size_ + 1);
+            reserve(size_ + 1);
         }
         new (&data[size_]) T();
         ++size_;
     }
 
     void
-    push(T const & elem)
+    push_back(T const & value)
     {
         if (size_ == cap_) {
-            capacity(size_ + 1);
+            reserve(size_ + 1);
         }
-        data[size_++] = elem;
+        data[size_++] = value;
     }
 
     void
-    push_(T const & elem)
+    push_back_(T const & value)
     {
         assert(size_ < cap_);
-        data[size_++] = elem;
+        data[size_++] = value;
     }
 
     void
-    pop()
+    pop_back()
     {
         assert(size_ > 0);
         --size_;
         data[size_].~T();
     }
 
-    // NOTE: it seems possible that overflow can happen in the 'size_+1' expression of 'push()', but
-    // in fact it can not since it requires that 'cap_' is equal to INT_MAX. This in turn can not
-    // happen given the way capacities are calculated (below). Essentially, all capacities are
-    // even, but INT_MAX is odd.
-
-    T const &
-    last() const
+    void
+    growTo(size_t size)
     {
-        return data[size_-1];
+        if (size_ >= size) {
+            return;
+        }
+        reserve(size);
+        for (size_t i = size_; i < size; ++i) {
+            new (&data[i]) T();
+        }
+        size_ = size;
     }
 
-    T &
-    last()
+    void
+    growTo(size_t size, T const & pad)
     {
-        return data[size_-1];
-    }
-
-    T const &
-    operator [] (size_t pos) const
-    {
-        return data[pos];
-    }
-
-    T &
-    operator [] (size_t pos)
-    {
-        return data[pos];
+        if (size_ >= size) {
+            return;
+        }
+        reserve(size);
+        for (size_t i = size_; i < size; ++i) {
+            data[i] = pad;
+        }
+        size_ = size;
     }
 
     void
@@ -229,9 +229,9 @@ public:
     void
     memCopyTo(vec<T> & copy) const
     {
-        copy.capacity(cap_);
+        copy.reserve(cap_);
         copy.size_ = size_;
-        memcpy(copy.data, data, sizeof(T) * cap_);
+        memcpy(copy.data, data, cap_ * sizeof(T));
     }
 
 private:
@@ -244,9 +244,9 @@ private:
 
 template<typename T>
 void
-vec<T>::capacity(size_t new_cap)
+vec<T>::reserve(size_t new_cap)
 {
-    static auto mask = ~ std::size_t { 1 };
+    auto const mask = ~ std::size_t { 1 };
 
     // If we already have enough space, do nothing
     if (cap_ >= new_cap) {

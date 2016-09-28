@@ -329,14 +329,14 @@ Var Solver::newVar(bool sign, bool dvar)
     watchesBin .init(mkLit(v, true));
     unaryWatches .init(mkLit(v, false));
     unaryWatches .init(mkLit(v, true));
-    assigns .push(l_Undef);
-    vardata .push(mkVarData(CRef_Undef, 0));
-    activity .push(rnd_init_act ? drand(random_seed) * 0.00001 : 0);
-    seen .push(0);
-    permDiff .push(0);
-    polarity .push(sign);
-    decision .push();
-    trail .capacity(v + 1);
+    assigns.push_back(l_Undef);
+    vardata.push_back(mkVarData(CRef_Undef, 0));
+    activity.push_back(rnd_init_act ? drand(random_seed) * 0.00001 : 0);
+    seen.push_back(0);
+    permDiff.push_back(0);
+    polarity.push_back(sign);
+    decision.push_back();
+    trail.reserve(v + 1);
     setDecisionVar(v, dvar);
     return v;
 }
@@ -362,14 +362,14 @@ bool Solver::addClause_(vec<Lit>& ps)
             ps[j++] = p = ps[i];
     ps.shrink(i - j);
 
-    if (ps.size() == 0)
+    if (ps.empty())
         return ok = false;
     else if (ps.size() == 1) {
         uncheckedEnqueue(ps[0]);
         return ok = (propagate() == CRef_Undef);
     } else {
         CRef cr = ca.alloc(ps, false);
-        clauses.push(cr);
+        clauses.push_back(cr);
         attachClause(cr);
     }
 
@@ -382,11 +382,11 @@ void Solver::attachClause(CRef cr)
 
     assert(c.size() > 1);
     if (c.size() == 2) {
-        watchesBin[~c[0]].push(Watcher(cr, c[1]));
-        watchesBin[~c[1]].push(Watcher(cr, c[0]));
+        watchesBin[~c[0]].push_back(Watcher(cr, c[1]));
+        watchesBin[~c[1]].push_back(Watcher(cr, c[0]));
     } else {
-        watches[~c[0]].push(Watcher(cr, c[1]));
-        watches[~c[1]].push(Watcher(cr, c[0]));
+        watches[~c[0]].push_back(Watcher(cr, c[1]));
+        watches[~c[1]].push_back(Watcher(cr, c[0]));
     }
     if (c.learnt()) learnts_literals += c.size();
     else clauses_literals += c.size();
@@ -397,7 +397,7 @@ void Solver::attachClausePurgatory(CRef cr)
     const Clause& c = ca[cr];
 
     assert(c.size() > 1);
-    unaryWatches[~c[0]].push(Watcher(cr, c[1]));
+    unaryWatches[~c[0]].push_back(Watcher(cr, c[1]));
 
 }
 
@@ -596,7 +596,7 @@ void Solver::cancelUntil(int level)
         for (int c = trail.size() - 1; c >= trail_lim[level]; c--) {
             Var x = var(trail[c]);
             assigns [x] = l_Undef;
-            if (phase_saving > 1 || ((phase_saving == 1) && c > trail_lim.last())) {
+            if (phase_saving > 1 || ((phase_saving == 1) && c > trail_lim.back())) {
                 polarity[x] = sign(trail[c]);
             }
             insertVarOrder(x);
@@ -659,7 +659,7 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
 
     // Generate conflict clause:
     //
-    out_learnt.push(); // (leave room for the asserting literal)
+    out_learnt.push_back(); // (leave room for the asserting literal)
     int index = trail.size() - 1;
     do {
         assert(confl != CRef_Undef); // (otherwise should be UIP)
@@ -708,13 +708,13 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
                         pathC++;
                         // UPDATEVARACTIVITY trick (see competition'09 companion paper)
                         if (!isSelector(var(q)) &&  (reason(var(q)) != CRef_Undef) && ca[reason(var(q))].learnt())
-                            lastDecisionLevel.push(q);
+                            lastDecisionLevel.push_back(q);
                     } else {
                         if (isSelector(var(q))) {
                             assert(value(q) == l_False);
-                            selectors.push(q);
+                            selectors.push_back(q);
                         } else
-                            out_learnt.push(q);
+                            out_learnt.push_back(q);
                     }
                 }
             }
@@ -735,7 +735,7 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
     int i, j;
 
     for (int i = 0; i < selectors.size(); i++)
-        out_learnt.push(selectors[i]);
+        out_learnt.push_back(selectors[i]);
 
     out_learnt.copyTo(analyze_toclear);
     if (ccmin_mode == 2) {
@@ -830,12 +830,12 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt,vec<Lit>&selectors, int& o
 bool Solver::litRedundant(Lit p, uint32_t abstract_levels)
 {
     analyze_stack.clear();
-    analyze_stack.push(p);
+    analyze_stack.push_back(p);
     int top = analyze_toclear.size();
     while (analyze_stack.size() > 0) {
-        assert(reason(var(analyze_stack.last())) != CRef_Undef);
-        Clause& c = ca[reason(var(analyze_stack.last()))];
-        analyze_stack.pop(); //
+        assert(reason(var(analyze_stack.back())) != CRef_Undef);
+        Clause& c = ca[reason(var(analyze_stack.back()))];
+        analyze_stack.pop_back();
         if (c.size() == 2 && value(c[0]) == l_False) {
             assert(value(c[1]) == l_True);
             Lit tmp = c[0];
@@ -848,8 +848,8 @@ bool Solver::litRedundant(Lit p, uint32_t abstract_levels)
                 if (level(var(p)) > 0) {
                     if (reason(var(p)) != CRef_Undef && (abstractLevel(var(p)) & abstract_levels) != 0) {
                         seen[var(p)] = 1;
-                        analyze_stack.push(p);
-                        analyze_toclear.push(p);
+                        analyze_stack.push_back(p);
+                        analyze_toclear.push_back(p);
                     } else {
                         for (int j = top; j < analyze_toclear.size(); j++)
                             seen[var(analyze_toclear[j])] = 0;
@@ -877,7 +877,7 @@ bool Solver::litRedundant(Lit p, uint32_t abstract_levels)
 void Solver::analyzeFinal(Lit p, vec<Lit>& out_conflict)
 {
     out_conflict.clear();
-    out_conflict.push(p);
+    out_conflict.push_back(p);
 
     if (decisionLevel() == 0)
         return;
@@ -889,7 +889,7 @@ void Solver::analyzeFinal(Lit p, vec<Lit>& out_conflict)
         if (seen[x]) {
             if (reason(x) == CRef_Undef) {
                 assert(level(x) > 0);
-                out_conflict.push(~trail[i]);
+                out_conflict.push_back(~trail[i]);
             } else {
                 Clause& c = ca[reason(x)];
                 //                for (int j = 1; j < c.size(); j++) Minisat (glucose 2.0) loop
@@ -912,7 +912,7 @@ void Solver::uncheckedEnqueue(Lit p, CRef from)
     assert(value(p) == l_Undef);
     assigns[var(p)] = lbool(!sign(p));
     vardata[var(p)] = mkVarData(from, decisionLevel());
-    trail.push_(p);
+    trail.push_back_(p);
 }
 
 /*_________________________________________________________________________________________________
@@ -1004,7 +1004,7 @@ CRef Solver::propagate()
                 if (choosenPos!=-1) {
                     c[1] = c[choosenPos];
                     c[choosenPos] = false_lit;
-                    watches[~c[1]].push(w);
+                    watches[~c[1]].push_back(w);
                     goto NextClause;
                 }
             } else {  // ----------------- DEFAULT  MODE (NOT INCREMENTAL)
@@ -1013,7 +1013,7 @@ CRef Solver::propagate()
                     if (value(c[k]) != l_False) {
                         c[1] = c[k];
                         c[k] = false_lit;
-                        watches[~c[1]].push(w);
+                        watches[~c[1]].push_back(w);
                         goto NextClause;
                     }
                 }
@@ -1091,7 +1091,7 @@ CRef Solver::propagateUnaryWatches(Lit p)
             if (value(c[k]) != l_False) {
                 c[0] = c[k];
                 c[k] = false_lit;
-                unaryWatches[~c[0]].push(w);
+                unaryWatches[~c[0]].push_back(w);
                 goto NextClauseUnary;
             }
         }
@@ -1159,7 +1159,7 @@ void Solver::reduceDB()
     // We have a lot of "good" clauses, it is difficult to compare them. Keep more !
     if (ca[learnts[learnts.size() / RATIOREMOVECLAUSES]].lbd()<=3) nbclausesbeforereduce +=specialIncReduceDB;
     // Useless :-)
-    if (ca[learnts.last()].lbd()<=5)  nbclausesbeforereduce +=specialIncReduceDB;
+    if (ca[learnts.back()].lbd()<=5)  nbclausesbeforereduce +=specialIncReduceDB;
 
 
     // Don't delete binary or locked clauses. From the rest, delete clauses from the first half
@@ -1207,7 +1207,7 @@ void Solver::rebuildOrderHeap()
     vec<Var> vs;
     for (Var v = 0; v < nVars(); v++)
         if (decision[v] && value(v) == l_Undef)
-            vs.push(v);
+            vs.push_back(v);
     order_heap.build(vs);
 
 }
@@ -1325,7 +1325,7 @@ lbool Solver::search(int nof_conflicts)
                 ca[cr].setSizeWithoutSelectors(szWithoutSelectors);
                 if (nblevels <= 2) nbDL2++; // stats
                 if (ca[cr].size() == 2) nbBin++; // stats
-                learnts.push(cr);
+                learnts.push_back(cr);
                 attachClause(cr);
                 lastLearntClause = cr; // Use in multithread (to hard to put inside ParallelSolver)
                 claBumpActivity(ca[cr]);
@@ -1423,7 +1423,7 @@ lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless
         model.growTo(nVars());
         for (int i = 0; i < nVars(); i++)
             model[i] = value(i);
-    } else if (status == l_False && conflict.size() == 0) {
+    } else if (status == l_False && conflict.empty()) {
         ok = false;
     }
 

@@ -207,7 +207,7 @@ public:
         for (; j < ps.size() && !equals(ps[j].key, k); j++);
         assert(j < ps.size());
         ps[j] = ps.last();
-        ps.pop();
+        ps.pop_back();
         size--;
     }
 
