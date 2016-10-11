@@ -321,7 +321,8 @@ bool Solver::isIncremental()
 // used as a decision variable (NOTE! This has effects on the meaning of a SATISFIABLE result).
 //
 
-Var Solver::newVar(bool sign, bool dvar)
+Var
+Solver::newVar(bool sign, bool dvar)
 {
     int v = nVars();
     watches .init(mkLit(v, false));
@@ -458,7 +459,9 @@ void Solver::removeClause(CRef cr, bool inPurgatory)
     else
         detachClause(cr);
     // Don't leave pointers to free'd memory!
-    if (locked(c)) vardata[var(c[0])].reason = CRef_Undef;
+    if (locked(c)) {
+        vardata[var(c[0])].reason = CRef_Undef;
+    }
     c.mark(1);
     ca.free(cr);
 }
@@ -1245,15 +1248,19 @@ void Solver::removeSatisfied(vec<CRef> & cs)
     cs.shrink(i - j);
 }
 
-void Solver::rebuildOrderHeap()
+
+void
+Solver::rebuildOrderHeap()
 {
     vec<Var> vs;
-    for (Var v = 0; v < nVars(); v++)
-        if (decision[v] && value(v) == l_Undef)
+    for (Var v = 0; v < (int) nVars(); ++v) {
+        if (decision[v] && value(v) == l_Undef) {
             vs.push_back(v);
+        }
+    }
     order_heap.build(vs);
-
 }
+
 
 /*_________________________________________________________________________________________________
 |
@@ -1263,6 +1270,7 @@ void Solver::rebuildOrderHeap()
 |    Simplify the clause database according to the current top-level assigment. Currently, the only
 |    thing done here is the removal of satisfied clauses, but more things can be put here.
 |________________________________________________________________________________________________@*/
+
 bool Solver::simplify()
 {
     assert(decisionLevel() == 0);
@@ -1465,9 +1473,11 @@ lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless
     if (status == l_True) {
         // Extend & copy model:
         model.growTo(nVars());
-        for (int i = 0; i < nVars(); i++)
+        for (size_t i = 0; i < nVars(); ++i) {
             model[i] = value(i);
-    } else if (status == l_False && conflict.empty()) {
+        }
+    }
+    else if (status == l_False && conflict.empty()) {
         ok = false;
     }
 
@@ -1495,8 +1505,8 @@ void Solver::relocAll(ClauseAllocator& to)
     watches.cleanAll();
     watchesBin.cleanAll();
     unaryWatches.cleanAll();
-    for (int v = 0; v < nVars(); v++)
-        for (int s = 0; s < 2; s++) {
+    for (size_t v = 0; v < nVars(); ++v)
+        for (size_t s = 0; s < 2; ++s) {
             Lit p = mkLit(v, s);
             vec<Watcher>& ws = watches[p];
             for (size_t j = 0; j < ws.size(); ++j)

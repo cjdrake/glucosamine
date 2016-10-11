@@ -120,7 +120,7 @@ public:
     int nAssigns() const;           // The current number of assigned literals.
     int nClauses() const;           // The current number of original clauses.
     int nLearnts() const;           // The current number of learnt clauses.
-    int nVars() const;              // The current number of variables.
+    size_t nVars() const;           // The current number of variables.
     int nFreeVars() const;
 
     inline char valuePhase(Var v) {
@@ -420,8 +420,9 @@ Solver::varBumpActivity(Var v, double inc)
 {
     if ( (activity[v] += inc) > 1e100 ) {
         // Rescale:
-        for (int i = 0; i < nVars(); i++)
+        for (size_t i = 0; i < nVars(); ++i) {
             activity[i] *= 1e-100;
+        }
         var_inc *= 1e-100;
     }
 
@@ -579,7 +580,7 @@ Solver::nLearnts() const
     return learnts.size();
 }
 
-inline int
+inline size_t
 Solver::nVars() const
 {
     return vardata.size();

@@ -29,17 +29,17 @@ TEST_F(VecTest, Basic)
 {
     vec<int> v;
 
-    EXPECT_EQ(v.size(), 0);
+    EXPECT_EQ(v.size(), 0u);
 
     for (int i = 0; i < 1024; ++i) {
         v.push_back(i);
     }
 
-    EXPECT_EQ(v.size(), 1024);
+    EXPECT_EQ(v.size(), 1024u);
 
     for (int i = 0; i < 1024; ++i) {
         v.pop_back();
     }
 
-    EXPECT_EQ(v.size(), 0);
+    EXPECT_EQ(v.size(), 0u);
 }
