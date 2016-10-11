@@ -162,7 +162,7 @@ public:
     unsigned int lbLBDFrozenClause;
 
     // Constant for reducing clause
-    int lbSizeMinimizingClause;
+    size_t lbSizeMinimizingClause;
     unsigned int lbLBDMinimizingClause;
 
     // Constant for heuristic
@@ -199,10 +199,11 @@ protected:
     // Helper structures:
     struct VarData {
         CRef reason;
-        int level;
+        unsigned level;
     };
 
-    static inline VarData mkVarData(CRef cr, int l) {
+    static inline VarData
+    mkVarData(CRef cr, unsigned l) {
         VarData d = {cr, l};
         return d;
     }
@@ -258,14 +259,14 @@ protected:
     vec<int>            nbpos;
     vec<int>            trail_lim;        // Separator indices for different decision levels in 'trail'.
     vec<VarData>        vardata;          // Stores reason and level for each variable.
-    int                 qhead;            // Head of queue (as index into the trail -- no more explicit propagation queue in MiniSat).
+    size_t              qhead;            // Head of queue (as index into the trail -- no more explicit propagation queue in MiniSat).
     int                 simpDB_assigns;   // Number of top-level assignments since last execution of 'simplify()'.
     int64_t             simpDB_props;     // Remaining number of propagations that must be made before next execution of 'simplify()'.
     vec<Lit>            assumptions;      // Current set of assumptions provided to solve by the user.
     Heap<VarOrderLt>    order_heap;       // A priority queue of variables ordered with respect to the variable activity.
     bool                remove_satisfied; // Indicates whether possibly inefficient linear scan for satisfied clauses should be performed in 'simplify'.
     bool reduceOnSize;
-    int  reduceOnSizeSize;                // See XMinisat paper
+    size_t reduceOnSizeSize;                // See XMinisat paper
     vec<unsigned int>   permDiff;           // permDiff[var] contains the current conflict number... Used to count the number of  LBD
 
     // UPDATEVARACTIVITY trick (see competition'09 companion paper)
@@ -315,8 +316,8 @@ protected:
     void     uncheckedEnqueue (Lit p, CRef from = CRef_Undef);                         // Enqueue a literal. Assumes value of literal is undefined.
     bool     enqueue          (Lit p, CRef from = CRef_Undef);                         // Test if fact 'p' contradicts current state, enqueue otherwise.
     CRef     propagate        ();                                                      // Perform unit propagation. Returns possibly conflicting clause.
-    CRef     propagateUnaryWatches(Lit p);                                                  // Perform propagation on unary watches of p, can find only conflicts
-    void     cancelUntil      (int level);                                             // Backtrack until a certain level.
+    CRef     propagateUnaryWatches(Lit p);                                             // Perform propagation on unary watches of p, can find only conflicts
+    void     cancelUntil      (size_t level);                                          // Backtrack until a certain level.
     void     analyze          (CRef confl, vec<Lit>& out_learnt, vec<Lit> & selectors, int& out_btlevel,unsigned int &nblevels,unsigned int &szWithoutSelectors);    // (bt = backtrack)
     void     analyzeFinal     (Lit p, vec<Lit>& out_conflict);                         // COULD THIS BE IMPLEMENTED BY THE ORDINARIY "analyze" BY SOME REASONABLE GENERALIZATION?
     bool     litRedundant     (Lit p, uint32_t abstract_levels);                       // (helper method for 'analyze()')
@@ -352,10 +353,11 @@ protected:
 
     // Misc:
     //
-    int      decisionLevel    ()      const; // Gives the current decisionlevel.
+    size_t decisionLevel() const; // Gives the current decisionlevel.
+
     uint32_t abstractLevel    (Var x) const; // Used to represent an abstraction of sets of decision levels.
     CRef     reason           (Var x) const;
-    int      level            (Var x) const;
+    unsigned level            (Var x) const;
     bool     withinBudget     ()      const;
     inline bool isSelector(Var v) {
         return (incremental && v>nbVarsInitialFormula);
@@ -387,7 +389,7 @@ Solver::reason(Var x) const
     return vardata[x].reason;
 }
 
-inline int
+inline unsigned
 Solver::level(Var x) const
 {
     return vardata[x].level;
@@ -523,14 +525,14 @@ Solver::newDecisionLevel()
     trail_lim.push_back(trail.size());
 }
 
-inline int
-Solver::decisionLevel () const
+inline size_t
+Solver::decisionLevel() const
 {
     return trail_lim.size();
 }
 
 inline uint32_t
-Solver::abstractLevel (Var x) const
+Solver::abstractLevel(Var x) const
 {
     return 1 << (level(x) & 31);
 }

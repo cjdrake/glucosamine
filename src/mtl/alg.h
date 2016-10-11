@@ -26,13 +26,20 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 namespace Glucose {
 
 
-template<class V, class T>
-static inline void remove(V& ts, const T& t)
+template<typename V, typename T>
+static inline void
+remove(V & ts, T const & t)
 {
-    int j = 0;
+    size_t j = 0;
+
     for (; j < ts.size() && ts[j] != t; j++);
+
     assert(j < ts.size());
-    for (; j < ts.size()-1; j++) ts[j] = ts[j+1];
+
+    for (; j < ts.size()-1; j++) {
+        ts[j] = ts[j+1];
+    }
+
     ts.pop_back();
 }
 

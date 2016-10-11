@@ -197,23 +197,23 @@ typedef RegionAllocator<uint32_t>::Ref CRef;
 #define BITS_LBD 13
 #define BITS_SIZEWITHOUTSEL 19
 #define BITS_REALSIZE 21
-class Clause {
+
+class Clause
+{
     struct {
         unsigned mark       : 2;
         unsigned learnt     : 1;
-unsigned szWithoutSelectors :
-        BITS_SIZEWITHOUTSEL;
+        unsigned szWithoutSelectors
+                            : BITS_SIZEWITHOUTSEL;
         unsigned canbedel   : 1;
         unsigned extra_size : 2; // extra size (end of 32bits) 0..3
-unsigned size       :
-        BITS_REALSIZE;
+        unsigned size       : BITS_REALSIZE;
         unsigned seen       : 1;
         unsigned reloced    : 1;
         unsigned exported   : 2; // Values to keep track of the clause status for exportations
         unsigned oneWatched : 1;
-unsigned lbd :
-        BITS_LBD;
-    }  header;
+        unsigned lbd        : BITS_LBD;
+    } header;
 
     union {
         Lit lit;
@@ -226,19 +226,21 @@ unsigned lbd :
 
     // NOTE: This constructor cannot be used directly (doesn't allocate enough memory).
     template<class V>
-    Clause(const V& ps, int _extra_size, bool learnt) {
+    Clause(V const & ps, int _extra_size, bool learnt)
+    {
         assert(_extra_size < (1<<2));
-        header.mark      = 0;
-        header.learnt    = learnt;
+        header.mark = 0;
+        header.learnt = learnt;
         header.extra_size = _extra_size;
-        header.reloced   = 0;
-        header.size      = ps.size();
+        header.reloced = 0;
+        header.size = ps.size();
         header.lbd = 0;
         header.canbedel = 1;
         header.exported = 0;
         header.oneWatched = 0;
         header.seen = 0;
-        for (int i = 0; i < ps.size(); i++)
+
+        for (size_t i = 0; i < ps.size(); i++)
             data[i].lit = ps[i];
 
         if (header.extra_size > 0) {
@@ -253,18 +255,22 @@ unsigned lbd :
     }
 
 public:
-    void calcAbstraction() {
+    void calcAbstraction()
+    {
         assert(header.extra_size > 0);
         uint32_t abstraction = 0;
-        for (int i = 0; i < size(); i++)
+        for (size_t i = 0; i < size(); i++)
             abstraction |= 1 << (var(data[i].lit) & 31);
         data[header.size].abs = abstraction;
     }
 
-    int          size        ()      const   {
+    size_t size() const
+    {
         return header.size;
     }
-    void         shrink      (int i)         {
+
+    void shrink(size_t i)
+    {
         assert(i <= size());
         if (header.extra_size > 0) {
             data[header.size-i] = data[header.size];
@@ -280,108 +286,161 @@ public:
         shrink(1);
     }
 
-    bool         learnt      ()      const   {
+    bool learnt() const
+    {
         return header.learnt;
     }
-    bool         has_extra   ()      const   {
+
+    bool has_extra() const
+    {
         return header.extra_size > 0;
     }
-    uint32_t     mark        ()      const   {
+
+    uint32_t mark() const
+    {
         return header.mark;
     }
-    void         mark        (uint32_t m)    {
+
+    void mark(uint32_t m)
+    {
         header.mark = m;
     }
-    const Lit&   last        ()      const   {
+
+    const Lit&
+    last() const
+    {
         return data[header.size-1].lit;
     }
 
-    bool         reloced     ()      const   {
+    bool reloced() const
+    {
         return header.reloced;
     }
-    CRef         relocation  ()      const   {
+
+    CRef relocation() const
+    {
         return data[0].rel;
     }
-    void         relocate    (CRef c)        {
+
+    void relocate(CRef c)
+    {
         header.reloced = 1;
         data[0].rel = c;
     }
 
     // NOTE: somewhat unsafe to change the clause in-place! Must manually call 'calcAbstraction' afterwards for
     //       subsumption operations to behave correctly.
-    Lit&         operator [] (int i)         {
+    Lit& operator [] (int i)
+    {
         return data[i].lit;
-    }
-    Lit          operator [] (int i) const   {
-        return data[i].lit;
-    }
-    operator const Lit* (void) const         {
-        return (Lit*)data;
     }
 
-    float&       activity    ()              {
+    Lit operator [] (int i) const
+    {
+        return data[i].lit;
+    }
+
+    operator const Lit * () const
+    {
+        return (Lit *) data;
+    }
+
+    float & activity()
+    {
         assert(header.extra_size > 0);
         return data[header.size].act;
     }
-    uint32_t     abstraction () const        {
+
+    uint32_t abstraction() const
+    {
         assert(header.extra_size > 0);
         return data[header.size].abs;
     }
 
     // Handle imported clauses lazy sharing
-    bool        wasImported() const {
+    bool wasImported() const
+    {
         return header.extra_size > 1;
     }
-    uint32_t    importedFrom () const       {
+
+    uint32_t importedFrom() const
+    {
         assert(header.extra_size > 1);
         return data[header.size + 1].abs;
     }
-    void setImportedFrom(uint32_t ifrom) {
+
+    void setImportedFrom(uint32_t ifrom)
+    {
         assert(header.extra_size > 1);
         data[header.size+1].abs = ifrom;
     }
 
-    Lit          subsumes    (const Clause& other) const;
-    void         strengthen  (Lit p);
-    void         setLBD(int i)  {
-        if (i < (1<<(BITS_LBD-1))) header.lbd = i;
-        else header.lbd = (1<<(BITS_LBD-1));
-    }
-    // unsigned int&       lbd    ()              { return header.lbd; }
-    unsigned int        lbd    () const        {
-        return header.lbd;
-    }
-    void setCanBeDel(bool b) {
-        header.canbedel = b;
-    }
-    bool canBeDel() {
-        return header.canbedel;
-    }
-    void setSeen(bool b) {
-        header.seen = b;
-    }
-    bool getSeen() {
-        return header.seen;
-    }
-    void setExported(unsigned int b) {
-        header.exported = b;
-    }
-    unsigned int getExported() {
-        return header.exported;
-    }
-    void setOneWatched(bool b) {
-        header.oneWatched = b;
-    }
-    bool getOneWatched() {
-        return header.oneWatched;
-    }
-    void setSizeWithoutSelectors   (unsigned int n)              {
-        header.szWithoutSelectors = n;
-    }
-    unsigned int        sizeWithoutSelectors   () const        {
-        return header.szWithoutSelectors;
+    Lit subsumes(Clause const & other) const;
+    void strengthen(Lit p);
+    void setLBD(int i)
+    {
+        if (i < (1<<(BITS_LBD-1)))
+            header.lbd = i;
+        else
+            header.lbd = (1<<(BITS_LBD-1));
     }
 
+    // unsigned int& lbd() { return header.lbd; }
+
+    unsigned int lbd() const
+    {
+        return header.lbd;
+    }
+
+    void setCanBeDel(bool b)
+    {
+        header.canbedel = b;
+    }
+
+    bool canBeDel()
+    {
+        return header.canbedel;
+    }
+
+    void setSeen(bool b)
+    {
+        header.seen = b;
+    }
+
+    bool getSeen()
+    {
+        return header.seen;
+    }
+
+    void setExported(unsigned int b)
+    {
+        header.exported = b;
+    }
+
+    unsigned int getExported()
+    {
+        return header.exported;
+    }
+
+    void setOneWatched(bool b)
+    {
+        header.oneWatched = b;
+    }
+
+    bool getOneWatched()
+    {
+        return header.oneWatched;
+    }
+
+    void setSizeWithoutSelectors(unsigned int n)
+    {
+        header.szWithoutSelectors = n;
+    }
+
+    unsigned int sizeWithoutSelectors() const
+    {
+        return header.szWithoutSelectors;
+    }
 };
 
 
@@ -405,10 +464,11 @@ public:
         RegionAllocator<uint32_t>::moveTo(to);
     }
 
-    template<class Lits>
-    CRef alloc(const Lits& ps, bool learnt = false, bool imported = false) {
-        assert(sizeof(Lit)      == sizeof(uint32_t));
-        assert(sizeof(float)    == sizeof(uint32_t));
+    template<typename Lits>
+    CRef
+    alloc(Lits const & ps, bool learnt = false, bool imported = false) {
+        assert(sizeof(Lit) == sizeof(uint32_t));
+        assert(sizeof(float) == sizeof(uint32_t));
 
         bool use_extra = learnt | extra_clause_field;
         int extra_size = imported?3:(use_extra?1:0);
@@ -419,28 +479,43 @@ public:
     }
 
     // Deref, Load Effective Address (LEA), Inverse of LEA (AEL):
-    Clause&       operator[](Ref r)       {
+    Clause &
+    operator[] (Ref r)
+    {
         return (Clause&)RegionAllocator<uint32_t>::operator[](r);
     }
-    const Clause& operator[](Ref r) const {
+
+    Clause const &
+    operator[] (Ref r) const
+    {
         return (Clause&)RegionAllocator<uint32_t>::operator[](r);
     }
-    Clause*       lea       (Ref r)       {
-        return (Clause*)RegionAllocator<uint32_t>::lea(r);
+
+    Clause * lea(Ref r)
+    {
+        return (Clause *) RegionAllocator<uint32_t>::lea(r);
     }
-    const Clause* lea       (Ref r) const {
-        return (Clause*)RegionAllocator<uint32_t>::lea(r);
+
+    Clause const *
+    lea(Ref r) const
+    {
+        return (Clause *) RegionAllocator<uint32_t>::lea(r);
     }
-    Ref           ael       (const Clause* t) {
+
+    Ref
+    ael(Clause const * t)
+    {
         return RegionAllocator<uint32_t>::ael((uint32_t*)t);
     }
 
-    void free(CRef cid) {
+    void
+    free(CRef cid)
+    {
         Clause& c = operator[](cid);
         RegionAllocator<uint32_t>::free(clauseWord32Size(c.size(), c.has_extra()));
     }
 
-    void reloc(CRef& cr, ClauseAllocator& to) {
+    void reloc(CRef & cr, ClauseAllocator & to) {
         Clause& c = operator[](cr);
 
         if (c.reloced()) {
@@ -483,25 +558,37 @@ class OccLists {
 public:
     OccLists(const Deleted& d) : deleted(d) {}
 
-    void  init      (const Idx& idx) {
+    void
+    init(Idx const & idx)
+    {
         occs.growTo(toInt(idx)+1);
         dirty.growTo(toInt(idx)+1, 0);
     }
+
     // Vec&  operator[](const Idx& idx){ return occs[toInt(idx)]; }
-    Vec&  operator[](const Idx& idx) {
-        return occs[toInt(idx)];
-    }
-    Vec&  lookup    (const Idx& idx) {
-        if (dirty[toInt(idx)]) clean(idx);
+
+    Vec &
+    operator[] (Idx const & idx)
+    {
         return occs[toInt(idx)];
     }
 
-    void  cleanAll  ();
+    Vec &
+    lookup(Idx const & idx)
+    {
+        if (dirty[toInt(idx)]) {
+            clean(idx);
+        }
+        return occs[toInt(idx)];
+    }
+
+    void cleanAll();
+
     void copyTo(OccLists &copy) const {
-
         copy.occs.growTo(occs.size());
-        for(int i = 0; i<occs.size(); i++)
+        for (size_t i = 0; i < occs.size(); ++i) {
             occs[i].memCopyTo(copy.occs[i]);
+        }
         dirty.memCopyTo(copy.dirty);
         dirties.memCopyTo(copy.dirties);
     }
@@ -522,25 +609,30 @@ public:
 };
 
 
-template<class Idx, class Vec, class Deleted>
+template<typename Idx, typename Vec, typename Deleted>
 void OccLists<Idx,Vec,Deleted>::cleanAll()
 {
-    for (int i = 0; i < dirties.size(); i++)
+    for (size_t i = 0; i < dirties.size(); ++i) {
         // Dirties may contain duplicates so check here if a variable is already cleaned:
-        if (dirty[toInt(dirties[i])])
+        if (dirty[toInt(dirties[i])]) {
             clean(dirties[i]);
+        }
+    }
     dirties.clear();
 }
 
 
-template<class Idx, class Vec, class Deleted>
-void OccLists<Idx,Vec,Deleted>::clean(const Idx& idx)
+template<typename Idx, typename Vec, typename Deleted>
+void
+OccLists<Idx,Vec,Deleted>::clean(Idx const & idx)
 {
     Vec& vec = occs[toInt(idx)];
-    int  i, j;
-    for (i = j = 0; i < vec.size(); i++)
-        if (!deleted(vec[i]))
+    size_t i, j;
+    for (i = j = 0; i < vec.size(); i++) {
+        if (!deleted(vec[i])) {
             vec[j++] = vec[i];
+        }
+    }
     vec.shrink(i - j);
     dirty[toInt(idx)] = 0;
 }
